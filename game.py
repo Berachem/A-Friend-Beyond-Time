@@ -146,10 +146,32 @@ class BaseMapView:
 class MapView1(BaseMapView):
     """ First map view: House """
 
+    def __init__(self, game_view):
+        super().__init__(game_view)
+        # Load the background image
+        self.background = arcade.Sprite(
+            ":resources:images/cybercity_background/far-buildings.png")
+        
+        # Adjust the scale of the background to fit the screen
+        image_width = self.background.width
+        image_height = self.background.height
+
+        # Scale to match the window size
+        self.background.scale = max(SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+
+        # Set the background position to the center of the screen
+        self.background.center_x = SCREEN_WIDTH // 2
+        self.background.center_y = SCREEN_HEIGHT // 2
+
     def on_draw(self):
         """ Draw the map. """
+        # Draw the background
+        self.background.draw()
+
+        # Draw the map details
         arcade.draw_text("🏡 Map 1: The Kitchen", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Cozy Kitchen 🍳", 10,
@@ -157,7 +179,7 @@ class MapView1(BaseMapView):
         else:
             arcade.draw_text("Past: Abandoned Kitchen 🥄", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
-
+            
         # Add kitchen props
         oven = arcade.Sprite(
             ":resources:images/tiles/brickTextureWhite.png", TILE_SCALING)
@@ -168,8 +190,11 @@ class MapView1(BaseMapView):
         fridge.center_x = 300
         fridge.center_y = 150
 
+        # Draw kitchen props
         oven.draw()
         fridge.draw()
+
+
 
 
 class MapView2(BaseMapView):
