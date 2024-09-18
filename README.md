@@ -64,3 +64,5 @@ Lire des lettres laissées par ton ami, contenant des indices sur sa localisatio
 - **Arcades** : Librairie Python pour le développement de jeux vidéo en 2D.
 
 ### Maquette
+
+![alt text](/assets/brand/maquette.png)
