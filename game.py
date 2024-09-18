@@ -157,6 +157,15 @@ class GameView(arcade.View):
             MapCITY(self)
         ]
 
+    def change_view(self, new_view_index):
+        """
+        Change the current view to the specified map view index.
+        This also resets the player's position.
+        """
+        self.current_view = new_view_index
+        self.player_sprite.center_x = PLAYER_START_X  # Réinitialiser la position X
+        self.player_sprite.center_y = PLAYER_START_Y  # Réinitialiser la position Y
+
     def setup(self):
         """ Set up the game here. """
         self.player_sprite = PlayerCharacter()
@@ -314,8 +323,7 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -390,8 +398,7 @@ class MapWinter(BaseMapView):
                 self.game_view.setup()
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -409,8 +416,7 @@ class MapForest(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -445,8 +451,7 @@ class MapForest(BaseMapView):
     def on_update(self, delta_time):
         """Met à jour l'arrière-plan si l'état temporel change."""
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -459,13 +464,14 @@ class MapCITY(BaseMapView):
         # Variable pour stocker le nom du fichier d'arrière-plan
         self.background_file_name = None
         self.background = None
+        self.flames = arcade.SpriteList()  # Use SpriteList instead of a regular list
         self.update_background()
+        self.add_flames()  # Initialize flames in the map
 
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -480,6 +486,14 @@ class MapCITY(BaseMapView):
         self.background.center_x = SCREEN_WIDTH // 2
         self.background.center_y = SCREEN_HEIGHT // 2
 
+    def add_flames(self):
+        """Add flame sprites to the city map in the past."""
+        flame_positions = [(425, 350), (975, 550), (1200, 550), (825, 115)]  # Example positions
+        for pos in flame_positions:
+            flame = arcade.Sprite("assets/images/flame.png", 0.2)  # Fixed path to flame sprite
+            flame.center_x, flame.center_y = pos
+            self.flames.append(flame)  # This now adds to the SpriteList
+
     def on_draw(self):
         """ Draw the map. """
         self.background.draw()
@@ -493,14 +507,26 @@ class MapCITY(BaseMapView):
         else:
             arcade.draw_text("Past: Silent Ruins", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+            # Draw flames in the past
+            self.flames.draw()  # Efficiently draws all flames in the SpriteList
 
     def on_update(self, delta_time):
         """Met à jour l'arrière-plan si l'état temporel change."""
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
+
+        # Vérifier les collisions avec les flammes
+        if self.game_view.temporal_state == PAST:  # Seulement dans le passé
+            flames_hit_list = arcade.check_for_collision_with_list(self.game_view.player_sprite, self.flames)
+
+            if flames_hit_list:
+                # Si une collision est détectée, revenir à la première map
+                self.game_view.current_view = 0  # Retour à la première carte
+                self.game_view.player_sprite.center_x = PLAYER_START_X  # Position de départ sur la première carte
+                self.game_view.player_sprite.center_y = PLAYER_START_Y
+                self.game_view.change_view(0)  # Change la vue vers la première carte
 
 
 def main():
