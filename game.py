@@ -36,7 +36,7 @@ def load_texture_pair(filename):
 
 
 class PlayerCharacter(arcade.Sprite):
-    """Player Sprite with animations for walking, jumping, and idle states"""
+    """Player Sprite with animations for walking and idle states, no jumping"""
 
     def __init__(self):
         # Initialiser avec une image statique (idle)
@@ -55,12 +55,6 @@ class PlayerCharacter(arcade.Sprite):
         # Charger les textures idle (statique)
         self.idle_texture_pair = load_texture_pair(f"{main_path}_idle.png")
 
-        # Charger les textures de saut
-        self.jump_texture_pair = load_texture_pair(f"{main_path}_jump.png")
-
-        # Charger les textures de chute
-        self.fall_texture_pair = load_texture_pair(f"{main_path}_fall.png")
-
         # Charger les textures de marche
         self.walk_textures = []
         for i in range(8):  # 8 frames pour la marche
@@ -76,21 +70,12 @@ class PlayerCharacter(arcade.Sprite):
         # Initialiser la vélocité du joueur
         self.change_x = 0
         self.change_y = 0
-        self.jumping = False
 
     def update_animation(self, delta_time: float = 1 / 60):
         """ Gérer l'animation en fonction du mouvement du personnage """
 
-        # Si le joueur est en l'air, utiliser les textures de saut ou de chute
-        if self.change_y > 0:
-            self.texture = self.jump_texture_pair[self.facing_direction]
-            return
-        elif self.change_y < 0:
-            self.texture = self.fall_texture_pair[self.facing_direction]
-            return
-
         # Si le joueur est immobile (idle)
-        if self.change_x == 0:
+        if self.change_x == 0 and self.change_y == 0:
             self.texture = self.idle_texture_pair[self.facing_direction]
             return
 
@@ -98,20 +83,30 @@ class PlayerCharacter(arcade.Sprite):
         self.cur_texture += 1
         if self.cur_texture >= 8 * 5:  # 8 frames avec une vitesse de changement
             self.cur_texture = 0
-        self.texture = self.walk_textures[self.cur_texture //
-                                          5][self.facing_direction]
+        self.texture = self.walk_textures[self.cur_texture // 5][self.facing_direction]
 
     def update(self):
         """ Update player position """
         self.center_x += self.change_x
         self.center_y += self.change_y
 
-        # Limiter le joueur aux bords de l'écran verticalement
-        if self.center_y < 0:
-            self.center_y = 0
-        if self.center_y > SCREEN_HEIGHT:
-            self.center_y = SCREEN_HEIGHT
+        # # Limiter le joueur aux bords de l'écran verticalement
+        # if self.center_y < 0:
+        #     self.center_y = 0
+        # if self.center_y > SCREEN_HEIGHT:
+        #     self.center_y = SCREEN_HEIGHT
 
+        # Limiter le joueur aux bords de l'écran horizontalement
+        if self.left < 0:
+            self.left = 0
+        if self.right > SCREEN_WIDTH:
+            self.right = SCREEN_WIDTH
+
+        # Limiter le joueur aux bords de l'écran verticalement
+        if self.bottom < 0:
+            self.bottom = 0
+        if self.top > SCREEN_HEIGHT:
+            self.top = SCREEN_HEIGHT
         # Mettre à jour l'animation du joueur
         self.update_animation()
 
@@ -123,16 +118,17 @@ class PlayerCharacter(arcade.Sprite):
         elif key == arcade.key.LEFT:
             self.change_x = -PLAYER_MOVEMENT_SPEED
             self.facing_direction = LEFT_FACING
-        elif key == arcade.key.UP and not self.jumping:
-            self.change_y = PLAYER_JUMP_SPEED
-            self.jumping = True
+        elif key == arcade.key.UP:
+            self.change_y = PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.DOWN:
+            self.change_y = -PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, key, modifiers):
         """ Gérer le relâchement des touches """
         if key == arcade.key.RIGHT or key == arcade.key.LEFT:
             self.change_x = 0
-        elif key == arcade.key.UP:
-            self.jumping = False
+        elif key == arcade.key.UP or key == arcade.key.DOWN:
+            self.change_y = 0
 
 
 class GameView(arcade.View):
@@ -402,20 +398,20 @@ class MapWinter(BaseMapView):
                 # Si le cœur brisé n'a pas été collecté, on le dessine
                 if self.broken_heart is None:
                     self.broken_heart = arcade.Sprite(
-                        "assets/images/items/coeurBrise.png", 0.20)  # Augmenter la taille avec scale 0.20
+                        "assets/images/items/coeurBrise.png", 0.30)  # Augmenter la taille avec scale 0.20
                     self.broken_heart.center_x = 400
                     self.broken_heart.center_y = 400
                 self.broken_heart.draw()
 
         else:
             arcade.draw_text("Past: Frozen Wasteland", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 30)
 
             if not self.normal_heart_collected:
                 # Si le cœur normal n'a pas été collecté, on le dessine
                 if self.normal_heart is None:
                     self.normal_heart = arcade.Sprite(
-                        "assets/images/items/coeur.png", 0.20)  # Augmenter la taille avec scale 0.20
+                        "assets/images/items/coeur.png", 0.30)  # Augmenter la taille avec scale 0.20
                     self.normal_heart.center_x = 1150
                     self.normal_heart.center_y = 350
                 self.normal_heart.draw()
@@ -441,11 +437,15 @@ class MapWinter(BaseMapView):
                     # Supprimer le cœur normal une fois collecté
                     self.normal_heart.remove_from_sprite_lists()
                     self.game_view.items_collected += 1  # Incrémenter le compteur des objets collectés
+                    
+                    # Redirection vers la carte City
+                    self.game_view.change_view(3)  # L'index 3 correspond à la MapCity
 
         # Mettre à jour l'arrière-plan si la temporalité change
         expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
+
 
 
 
