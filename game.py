@@ -34,7 +34,6 @@ class PlayerCharacter(arcade.Sprite):
 
     def update(self):
         """ Update player position """
-        # Update position based on movement speed
         self.center_x += self.change_x
         self.center_y += self.change_y
 
@@ -57,6 +56,10 @@ class GameView(arcade.View):
         self.current_view = 0          # Keep track of the current view
         self.physics_engine = None
 
+        # HUD elements
+        self.time_elapsed = 0
+        self.items_collected = 0
+
         # Create the views (levels)
         self.views = [
             MapView1(self),
@@ -72,16 +75,22 @@ class GameView(arcade.View):
     def on_draw(self):
         """ Draw the current view based on the current temporal state. """
         self.clear()
+
         # Draw the current view
         self.views[self.current_view].on_draw()
 
         # Draw the player
         self.player_sprite.draw()
 
-        # Overlay for temporal state
-        # arcade.draw_text(f"🕰️ Temporal State: {self.temporal_state}",
-        #                10, SCREEN_HEIGHT - 40,
-        #                arcade.color.WHITE, 20)
+        # Draw HUD (top right)
+        arcade.draw_text(f"Time: {self.time_elapsed:.1f}s", SCREEN_WIDTH -
+                         150, SCREEN_HEIGHT - 40, arcade.color.WHITE, 20)
+        arcade.draw_text(f"Collected: {
+                         self.items_collected}", SCREEN_WIDTH - 150, SCREEN_HEIGHT - 70, arcade.color.WHITE, 20)
+
+        # Draw instruction to change time
+        arcade.draw_text("Press Space to change of time...",
+                         SCREEN_WIDTH // 2 - 100, 10, arcade.color.WHITE, 15)
 
     def on_key_press(self, key, modifiers):
         """ Handle key press for moving the player and switching temporal state. """
@@ -112,6 +121,7 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         """ Update the current view and check for map transitions. """
         self.player_sprite.update()
+        self.time_elapsed += delta_time
         self.views[self.current_view].on_update(delta_time)
 
         # Check if the player has reached the right or left edge
@@ -151,13 +161,14 @@ class MapView1(BaseMapView):
         # Load the background image
         self.background = arcade.Sprite(
             ":resources:images/cybercity_background/far-buildings.png")
-        
+
         # Adjust the scale of the background to fit the screen
         image_width = self.background.width
         image_height = self.background.height
 
         # Scale to match the window size
-        self.background.scale = max(SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+        self.background.scale = max(
+            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
 
         # Set the background position to the center of the screen
         self.background.center_x = SCREEN_WIDTH // 2
@@ -175,40 +186,58 @@ class MapView1(BaseMapView):
         arcade.draw_text("🏡 Map 1: The Kitchen", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         
->>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Cozy Kitchen 🍳", 10,
+            arcade.draw_text("Present: Cozy Kitchen ", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+
+            oven = arcade.Sprite(
+                ":resources:images/tiles/brickTextureWhite.png", TILE_SCALING)
+            oven.center_x = 200
+            oven.center_y = 150
+            oven.draw()
+
         else:
-            arcade.draw_text("Past: Abandoned Kitchen 🥄", 10,
+            arcade.draw_text("Past: Abandoned Kitchen ", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
-            
-        # Add kitchen props
-        oven = arcade.Sprite(
-            ":resources:images/tiles/brickTextureWhite.png", TILE_SCALING)
-        fridge = arcade.Sprite(
-            ":resources:images/tiles/lockYellow.png", TILE_SCALING)
-        oven.center_x = 200
-        oven.center_y = 150
-        fridge.center_x = 300
-        fridge.center_y = 150
 
-        # Draw kitchen props
-        oven.draw()
-        fridge.draw()
+            # Add kitchen props
 
+            fridge = arcade.Sprite(
+                ":resources:images/tiles/lockYellow.png", TILE_SCALING)
+            fridge.center_x = 300
+            fridge.center_y = 150
 
+            fridge.draw()
 
 
 class MapView2(BaseMapView):
     """ Second map view """
 
+    def __init__(self, game_view):
+        super().__init__(game_view)
+        self.letter_collected = False
+
+        self.letter = None
+
+        # Load the background image
+        self.background = arcade.Sprite(
+            ":resources:images/cybercity_background/far-buildings.png")
+
+        # Adjust the scale of the background to fit the screen
+        image_width = self.background.width
+        image_height = self.background.height
+
+        # Scale to match the window size
+        self.background.scale = max(
+            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+
+        # Set the background position to the center of the screen
+        self.background.center_x = SCREEN_WIDTH // 2
+        self.background.center_y = SCREEN_HEIGHT // 2
+
     def on_draw(self):
         """ Draw the map. """
-<<<<<<< HEAD
-        arcade.draw_text("Map 2: The Ski", 100, 400, arcade.color.GREEN, 30)
-=======
         arcade.draw_text("🌲 Map 2: The Forest", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
 >>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
@@ -216,9 +245,59 @@ class MapView2(BaseMapView):
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Lush Trees 🌳", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+
+            if not self.letter_collected:
+                # Si la lettre n'a pas été collectée, on la dessine
+                if self.letter is None:
+                    self.letter = arcade.Sprite(
+                        "assets/images/items/letter.png", 0.10)
+                    self.letter.center_x = 400
+                    self.letter.center_y = 400
+
+                self.letter.draw()
+
+                # Affiche "Press E to write a letter" lorsque le joueur est proche de la lettre
+
+                """   if abs(self.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.player_sprite.center_y - self.letter.center_y) < 50:
+                    arcade.draw_text("Press E to write a letter",
+                                     350, 370, arcade.color.WHITE, 20) """
+
         else:
             arcade.draw_text("Past: Burnt Forest 🌲🔥", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+
+            # Ajouter les spikes dans le passé (au milieu de l'écran)
+            spikes = arcade.Sprite(
+                ":resources:images/enemies/saw.png", TILE_SCALING)
+            spikes.center_x = SCREEN_WIDTH // 2
+            spikes.center_y = SCREEN_HEIGHT // 2
+            spikes.draw()
+
+            # Ajouter un personnage féminin à côté des spikes
+            female_adventurer = arcade.Sprite(
+                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
+            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
+            female_adventurer.center_y = SCREEN_HEIGHT // 2
+            female_adventurer.draw()
+
+    def on_update(self, delta_time):
+        """ Handle updates such as collecting letters and checking collisions. """
+        # Vérifier la collecte de la lettre dans le présent
+        if self.game_view.temporal_state == PRESENT and not self.letter_collected:
+            if self.letter and self.game_view.player_sprite:
+                if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
+                    # Appuyer sur 'E' pour écrire la lettre
+                    if arcade.key.E:
+                        self.letter_collected = True
+                        # Supprimer la lettre une fois collectée
+                        self.letter.remove_from_sprite_lists()
+                        self.game_view.items_collected += 1
+
+        # Vérifier les collisions avec les spikes dans le passé
+        if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
+            if abs(self.game_view.player_sprite.center_x - SCREEN_WIDTH // 2) < 50 and abs(self.game_view.player_sprite.center_y - SCREEN_HEIGHT // 2) < 50:
+                # Redémarrer le jeu en cas de collision avec les spikes
+                self.game_view.setup()
 
 
 class MapView3(BaseMapView):
