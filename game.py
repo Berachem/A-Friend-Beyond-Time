@@ -15,33 +15,122 @@ CHARACTER_SCALING = TILE_SCALING * 2
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
 PLAYER_JUMP_SPEED = 15
+RIGHT_FACING = 0
+LEFT_FACING = 1
 
 PLAYER_START_X = 100
 PLAYER_START_Y = 100
 PLAYER_BORDER_PADDING = 10  # Padding for detecting map change
 
 
+def load_texture_pair(filename):
+    """
+    Load a texture pair, with the second being a mirror image.
+    """
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True),
+    ]
+
+
 class PlayerCharacter(arcade.Sprite):
-    """Player Sprite"""
+    """Player Sprite with animations for walking, jumping, and idle states"""
 
     def __init__(self):
-        super().__init__(filename=":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png",
-                         scale=CHARACTER_SCALING)
-        self.center_x = PLAYER_START_X
-        self.center_y = PLAYER_START_Y
+        # Initialiser avec une image statique (idle)
+        super().__init__()
+
+        # Par défaut, le personnage fait face à droite
+        self.facing_direction = RIGHT_FACING
+
+        # Utilisé pour les séquences d'images
+        self.cur_texture = 0
+        self.scale = CHARACTER_SCALING
+
+        # Chemin principal pour les fichiers d'animation
+        main_path = ":resources:images/animated_characters/male_adventurer/maleAdventurer"
+
+        # Charger les textures idle (statique)
+        self.idle_texture_pair = load_texture_pair(f"{main_path}_idle.png")
+
+        # Charger les textures de saut
+        self.jump_texture_pair = load_texture_pair(f"{main_path}_jump.png")
+
+        # Charger les textures de chute
+        self.fall_texture_pair = load_texture_pair(f"{main_path}_fall.png")
+
+        # Charger les textures de marche
+        self.walk_textures = []
+        for i in range(8):  # 8 frames pour la marche
+            texture = load_texture_pair(f"{main_path}_walk{i}.png")
+            self.walk_textures.append(texture)
+
+        # Définir la texture initiale
+        self.texture = self.idle_texture_pair[0]
+
+        # Points de la hitbox basés sur la texture initiale
+        self.set_hit_box(self.texture.hit_box_points)
+
+        # Initialiser la vélocité du joueur
         self.change_x = 0
         self.change_y = 0
+        self.jumping = False
+
+    def update_animation(self, delta_time: float = 1 / 60):
+        """ Gérer l'animation en fonction du mouvement du personnage """
+
+        # Si le joueur est en l'air, utiliser les textures de saut ou de chute
+        if self.change_y > 0:
+            self.texture = self.jump_texture_pair[self.facing_direction]
+            return
+        elif self.change_y < 0:
+            self.texture = self.fall_texture_pair[self.facing_direction]
+            return
+
+        # Si le joueur est immobile (idle)
+        if self.change_x == 0:
+            self.texture = self.idle_texture_pair[self.facing_direction]
+            return
+
+        # Si le joueur marche, changer les textures de marche
+        self.cur_texture += 1
+        if self.cur_texture >= 8 * 5:  # 8 frames avec une vitesse de changement
+            self.cur_texture = 0
+        self.texture = self.walk_textures[self.cur_texture //
+                                          5][self.facing_direction]
 
     def update(self):
         """ Update player position """
         self.center_x += self.change_x
         self.center_y += self.change_y
 
-        # Limit player to screen bounds vertically
+        # Limiter le joueur aux bords de l'écran verticalement
         if self.center_y < 0:
             self.center_y = 0
         if self.center_y > SCREEN_HEIGHT:
             self.center_y = SCREEN_HEIGHT
+
+        # Mettre à jour l'animation du joueur
+        self.update_animation()
+
+    def on_key_press(self, key, modifiers):
+        """ Gérer les touches de déplacement """
+        if key == arcade.key.RIGHT:
+            self.change_x = PLAYER_MOVEMENT_SPEED
+            self.facing_direction = RIGHT_FACING
+        elif key == arcade.key.LEFT:
+            self.change_x = -PLAYER_MOVEMENT_SPEED
+            self.facing_direction = LEFT_FACING
+        elif key == arcade.key.UP and not self.jumping:
+            self.change_y = PLAYER_JUMP_SPEED
+            self.jumping = True
+
+    def on_key_release(self, key, modifiers):
+        """ Gérer le relâchement des touches """
+        if key == arcade.key.RIGHT or key == arcade.key.LEFT:
+            self.change_x = 0
+        elif key == arcade.key.UP:
+            self.jumping = False
 
 
 class GameView(arcade.View):
