@@ -1,8 +1,8 @@
 import arcade
 
 # --- Constants ---
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1500
+SCREEN_HEIGHT = 1000
 SCREEN_TITLE = "Lost in Time, Found in Friendship"
 
 # Temporal Constants
