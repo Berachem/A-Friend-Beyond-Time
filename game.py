@@ -149,7 +149,7 @@ class MapView1(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 1: The House", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("Map 1: The City", 100, 400, arcade.color.GREEN, 30)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Cozy Home", 100,
@@ -164,7 +164,7 @@ class MapView2(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 2: The Forest", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("Map 2: The Ski", 100, 400, arcade.color.GREEN, 30)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Lush Trees", 100,
@@ -179,7 +179,7 @@ class MapView3(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 3: The Lake", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("Map 3: The Forest", 100, 400, arcade.color.GREEN, 30)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Peaceful Lake", 100,
@@ -194,7 +194,7 @@ class MapView4(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 4: The City", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("Map 4: The Home", 100, 400, arcade.color.GREEN, 30)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Busy Streets", 100,
