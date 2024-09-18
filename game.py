@@ -429,8 +429,9 @@ class MapWinter(BaseMapView):
                     self.broken_heart_collected = True
                     # Supprimer le cœur brisé une fois collecté
                     self.broken_heart.remove_from_sprite_lists()
-                    # Déclencher une action de défaite, par exemple redémarrer le jeu
-                    self.game_view.setup()  # Redémarre le jeu
+                     # Afficher la vue Game Over
+                    game_over_view = GameOverView()
+                    self.game_view.window.show_view(game_over_view)
 
         # Vérifier la collecte du cœur normal dans le passé
         if self.game_view.temporal_state == PAST and not self.normal_heart_collected:
@@ -610,10 +611,6 @@ class MapCITY(BaseMapView):
                 game_over = GameOverView()
                 self.game_view.window.show_view(game_over)  # Use game_view.window
 
-
-import arcade
-import arcade.gui
-
 class GameOverView(arcade.View):
     """ View to show when the game is over """
 
@@ -653,8 +650,11 @@ class GameOverView(arcade.View):
 
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
-        # Restart the game
-        self.window.show_view(GameView())  # Create a new instance of GameView
+        # Restart the game and go to the Introduction view
+        game_view = GameView()  # Create a new instance of GameView
+        game_view.setup()  # Set up the game state
+        game_view.current_view = 0  # Ensure the introduction view is the first view
+        self.window.show_view(game_view)  # Show the GameView with Introduction
 
     def on_quit_button_click(self, event):
         """ Handle the quit button click """
