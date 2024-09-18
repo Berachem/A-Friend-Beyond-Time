@@ -303,8 +303,10 @@ class MapWinter(BaseMapView):
 
     def __init__(self, game_view):
         super().__init__(game_view)
-        self.letter_collected = False
-        self.letter = None
+        self.broken_heart_collected = False
+        self.normal_heart_collected = False
+        self.broken_heart = None
+        self.normal_heart = None
 
         # Variable pour stocker le nom du fichier d'arrière-plan
         self.background_file_name = None
@@ -314,8 +316,7 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -345,55 +346,54 @@ class MapWinter(BaseMapView):
             arcade.draw_text("Present: Snowy Landscape", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
 
-            if not self.letter_collected:
-                # Si la lettre n'a pas été collectée, on la dessine
-                if self.letter is None:
-                    self.letter = arcade.Sprite(
-                        "assets/images/items/letter.png", 0.10)
-                    self.letter.center_x = 400
-                    self.letter.center_y = 400
-                self.letter.draw()
+            if not self.broken_heart_collected:
+                # Si le cœur brisé n'a pas été collecté, on le dessine
+                if self.broken_heart is None:
+                    self.broken_heart = arcade.Sprite(
+                        "assets/images/items/coeurBrise.png", 0.20)  # Augmenter la taille avec scale 0.20
+                    self.broken_heart.center_x = 400
+                    self.broken_heart.center_y = 400
+                self.broken_heart.draw()
 
         else:
             arcade.draw_text("Past: Frozen Wasteland", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
-            # Ajouter des objets dans le passé, par exemple des pics
-            spikes = arcade.Sprite(
-                ":resources:images/enemies/saw.png", TILE_SCALING)
-            spikes.center_x = SCREEN_WIDTH // 2
-            spikes.center_y = SCREEN_HEIGHT // 2
-            spikes.draw()
-
-            # Ajouter un personnage féminin à côté des pics
-            female_adventurer = arcade.Sprite(
-                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
-            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
-            female_adventurer.center_y = SCREEN_HEIGHT // 2
-            female_adventurer.draw()
+            if not self.normal_heart_collected:
+                # Si le cœur normal n'a pas été collecté, on le dessine
+                if self.normal_heart is None:
+                    self.normal_heart = arcade.Sprite(
+                        "assets/images/items/coeur.png", 0.20)  # Augmenter la taille avec scale 0.20
+                    self.normal_heart.center_x = 1150
+                    self.normal_heart.center_y = 350
+                self.normal_heart.draw()
 
     def on_update(self, delta_time):
-        """ Handle updates such as collecting letters and checking collisions. """
-        # Vérifier la collecte de la lettre dans le présent
-        if self.game_view.temporal_state == PRESENT and not self.letter_collected:
-            if self.letter and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
-                    self.letter_collected = True
-                    # Supprimer la lettre une fois collectée
-                    self.letter.remove_from_sprite_lists()
-                    self.game_view.items_collected += 1
+        """ Handle updates such as collecting hearts and checking collisions. """
+        # Vérifier la collecte du cœur brisé dans le présent
+        if self.game_view.temporal_state == PRESENT and not self.broken_heart_collected:
+            if self.broken_heart and self.game_view.player_sprite:
+                if abs(self.game_view.player_sprite.center_x - self.broken_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.broken_heart.center_y) < 50:
+                    self.broken_heart_collected = True
+                    # Supprimer le cœur brisé une fois collecté
+                    self.broken_heart.remove_from_sprite_lists()
+                    # Déclencher une action de défaite, par exemple redémarrer le jeu
+                    self.game_view.setup()  # Redémarre le jeu
 
-        # Vérifier les collisions avec les spikes dans le passé
-        if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
-            if abs(self.game_view.player_sprite.center_x - SCREEN_WIDTH // 2) < 50 and abs(self.game_view.player_sprite.center_y - SCREEN_HEIGHT // 2) < 50:
-                # Redémarrer le jeu en cas de collision avec les spikes
-                self.game_view.setup()
+        # Vérifier la collecte du cœur normal dans le passé
+        if self.game_view.temporal_state == PAST and not self.normal_heart_collected:
+            if self.normal_heart and self.game_view.player_sprite:
+                if abs(self.game_view.player_sprite.center_x - self.normal_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.normal_heart.center_y) < 50:
+                    self.normal_heart_collected = True
+                    # Supprimer le cœur normal une fois collecté
+                    self.normal_heart.remove_from_sprite_lists()
+                    self.game_view.items_collected += 1  # Incrémenter le compteur des objets collectés
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
+
 
 
 class MapForest(BaseMapView):
@@ -401,6 +401,8 @@ class MapForest(BaseMapView):
 
     def __init__(self, game_view):
         super().__init__(game_view)
+        self.letter_collected = False
+        self.letter = None
         # Variable pour stocker le nom du fichier d'arrière-plan
         self.background_file_name = None
         self.background = None
@@ -409,8 +411,7 @@ class MapForest(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -438,15 +439,50 @@ class MapForest(BaseMapView):
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Lush Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+            if not self.letter_collected:
+                # Si la lettre n'a pas été collectée, on la dessine
+                if self.letter is None:
+                    self.letter = arcade.Sprite(
+                        "assets/images/items/letter.png", 0.10)
+                    self.letter.center_x = 400
+                    self.letter.center_y = 400
+                self.letter.draw()
+
         else:
             arcade.draw_text("Past: Burnt Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+             # Ajouter des objets dans le passé, par exemple des pics
+            spikes = arcade.Sprite(
+                ":resources:images/enemies/saw.png", TILE_SCALING)
+            spikes.center_x = SCREEN_WIDTH // 2
+            spikes.center_y = SCREEN_HEIGHT // 2
+            spikes.draw()
+
+            # Ajouter un personnage féminin à côté des pics
+            female_adventurer = arcade.Sprite(
+                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
+            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
+            female_adventurer.center_y = SCREEN_HEIGHT // 2
+            female_adventurer.draw()
 
     def on_update(self, delta_time):
         """Met à jour l'arrière-plan si l'état temporel change."""
+         # Vérifier la collecte de la lettre dans le présent
+        if self.game_view.temporal_state == PRESENT and not self.letter_collected:
+            if self.letter and self.game_view.player_sprite:
+                if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
+                    self.letter_collected = True
+                    # Supprimer la lettre une fois collectée
+                    self.letter.remove_from_sprite_lists()
+                    self.game_view.items_collected += 1
+
+        # Vérifier les collisions avec les spikes dans le passé
+        if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
+            if abs(self.game_view.player_sprite.center_x - SCREEN_WIDTH // 2) < 50 and abs(self.game_view.player_sprite.center_y - SCREEN_HEIGHT // 2) < 50:
+                # Redémarrer le jeu en cas de collision avec les spikes
+                self.game_view.setup()
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -464,8 +500,7 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -496,9 +531,9 @@ class MapCITY(BaseMapView):
 
     def on_update(self, delta_time):
         """Met à jour l'arrière-plan si l'état temporel change."""
+        
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
