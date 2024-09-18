@@ -176,16 +176,14 @@ class MapView1(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-<<<<<<< HEAD
-        arcade.draw_text("Map 1: The City", 100, 400, arcade.color.GREEN, 30)
-=======
+
         # Draw the background
         self.background.draw()
 
         # Draw the map details
         arcade.draw_text("The Kitchen", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
-        
+
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Cozy Kitchen ", 10,
@@ -245,7 +243,7 @@ class MapWinter(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-<<<<<<< HEAD
+
         # Dessiner l'arrière-plan
         self.background.draw()
 
@@ -253,12 +251,7 @@ class MapWinter(BaseMapView):
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
 
         # Dessiner des objets en fonction de l'état temporel
-=======
-        arcade.draw_text("🌲 Map 2: The Forest", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
->>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
-        # Draw objects based on temporal state
->>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
+
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Snowy Landscape", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
@@ -345,22 +338,14 @@ class MapForest(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-<<<<<<< HEAD
+
         self.background.draw()
 
         arcade.draw_text("The Forest", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
 
         # Dessiner des objets en fonction de l'état temporel
-=======
-<<<<<<< HEAD
-        arcade.draw_text("Map 3: The Forest", 100, 400, arcade.color.GREEN, 30)
-=======
-        arcade.draw_text("🌊 Map 3: The Lake", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
->>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
-        # Draw objects based on temporal state
->>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
+
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Lush Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
@@ -408,21 +393,11 @@ class MapCITY(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-<<<<<<< HEAD
         self.background.draw()
 
         arcade.draw_text("The City", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         # Dessiner des objets en fonction de l'état temporel
-=======
-<<<<<<< HEAD
-        arcade.draw_text("Map 4: The Home", 100, 400, arcade.color.GREEN, 30)
-=======
-        arcade.draw_text("🏙️ Map 4: The City", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
->>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
-        # Draw objects based on temporal state
->>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Busy Streets", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
