@@ -25,7 +25,7 @@ class PlayerCharacter(arcade.Sprite):
     """Player Sprite"""
 
     def __init__(self):
-        super().__init__(filename=":resources:images/animated_characters/male_person/malePerson_idle.png",
+        super().__init__(filename=":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png",
                          scale=CHARACTER_SCALING)
         self.center_x = PLAYER_START_X
         self.center_y = PLAYER_START_Y
@@ -63,9 +63,9 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             MapView1(self),
-            MapView2(self),
-            MapView3(self),
-            MapView4(self)
+            MapForest(self),
+            MapWinter(self),
+            MapCITY(self)
         ]
 
     def setup(self):
@@ -85,8 +85,8 @@ class GameView(arcade.View):
         # Draw HUD (top right)
         arcade.draw_text(f"Time: {self.time_elapsed:.1f}s", SCREEN_WIDTH -
                          150, SCREEN_HEIGHT - 40, arcade.color.WHITE, 20)
-        arcade.draw_text(f"Collected: {
-                         self.items_collected}", SCREEN_WIDTH - 150, SCREEN_HEIGHT - 70, arcade.color.WHITE, 20)
+        arcade.draw_text(f"Collected: {self.items_collected}", SCREEN_WIDTH -
+                         150, SCREEN_HEIGHT - 70, arcade.color.WHITE, 20)
 
         # Draw instruction to change time
         arcade.draw_text("Press Space to change of time...",
@@ -160,7 +160,7 @@ class MapView1(BaseMapView):
         super().__init__(game_view)
         # Load the background image
         self.background = arcade.Sprite(
-            ":resources:images/cybercity_background/far-buildings.png")
+            "assets/images/backgrounds/house_map_present.png")
 
         # Adjust the scale of the background to fit the screen
         image_width = self.background.width
@@ -176,13 +176,16 @@ class MapView1(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
+<<<<<<< HEAD
+        arcade.draw_text("Map 1: The City", 100, 400, arcade.color.GREEN, 30)
+=======
         # Draw the background
         self.background.draw()
 
         # Draw the map details
-        arcade.draw_text("🏡 Map 1: The Kitchen", 10,
+        arcade.draw_text("The Kitchen", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
-
+        
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Cozy Kitchen ", 10,
@@ -208,41 +211,56 @@ class MapView1(BaseMapView):
             fridge.draw()
 
 
-class MapView2(BaseMapView):
+class MapWinter(BaseMapView):
     """ Second map view """
 
     def __init__(self, game_view):
         super().__init__(game_view)
         self.letter_collected = False
-
         self.letter = None
 
-        # Load the background image
-        self.background = arcade.Sprite(
-            ":resources:images/cybercity_background/far-buildings.png")
+        # Variable pour stocker le nom du fichier d'arrière-plan
+        self.background_file_name = None
+        self.background = None
+        self.update_background()
 
-        # Adjust the scale of the background to fit the screen
+    def update_background(self):
+        """Update background image based on temporal state."""
+        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
+        self.background = arcade.Sprite(self.background_file_name)
+
+        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
         image_width = self.background.width
         image_height = self.background.height
 
-        # Scale to match the window size
+        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
         self.background.scale = max(
             SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
 
-        # Set the background position to the center of the screen
+        # Positionner l'arrière-plan au centre de l'écran
         self.background.center_x = SCREEN_WIDTH // 2
         self.background.center_y = SCREEN_HEIGHT // 2
 
     def on_draw(self):
         """ Draw the map. """
-
-        # Draw the background
+<<<<<<< HEAD
+        # Dessiner l'arrière-plan
         self.background.draw()
+
+        arcade.draw_text("The Winter Land", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+
+        # Dessiner des objets en fonction de l'état temporel
+=======
         arcade.draw_text("🌲 Map 2: The Forest", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+>>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
         # Draw objects based on temporal state
+>>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Lush Trees 🌳", 10,
+            arcade.draw_text("Present: Snowy Landscape", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
 
             if not self.letter_collected:
@@ -252,27 +270,20 @@ class MapView2(BaseMapView):
                         "assets/images/items/letter.png", 0.10)
                     self.letter.center_x = 400
                     self.letter.center_y = 400
-
                 self.letter.draw()
 
-                # Affiche "Press E to write a letter" lorsque le joueur est proche de la lettre
-
-                """   if abs(self.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.player_sprite.center_y - self.letter.center_y) < 50:
-                    arcade.draw_text("Press E to write a letter",
-                                     350, 370, arcade.color.WHITE, 20) """
-
         else:
-            arcade.draw_text("Past: Burnt Forest 🌲🔥", 10,
+            arcade.draw_text("Past: Frozen Wasteland", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
-            # Ajouter les spikes dans le passé (au milieu de l'écran)
+            # Ajouter des objets dans le passé, par exemple des pics
             spikes = arcade.Sprite(
                 ":resources:images/enemies/saw.png", TILE_SCALING)
             spikes.center_x = SCREEN_WIDTH // 2
             spikes.center_y = SCREEN_HEIGHT // 2
             spikes.draw()
 
-            # Ajouter un personnage féminin à côté des spikes
+            # Ajouter un personnage féminin à côté des pics
             female_adventurer = arcade.Sprite(
                 ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
             female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
@@ -285,12 +296,10 @@ class MapView2(BaseMapView):
         if self.game_view.temporal_state == PRESENT and not self.letter_collected:
             if self.letter and self.game_view.player_sprite:
                 if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
-                    # Appuyer sur 'E' pour écrire la lettre
-                    if arcade.key.E:
-                        self.letter_collected = True
-                        # Supprimer la lettre une fois collectée
-                        self.letter.remove_from_sprite_lists()
-                        self.game_view.items_collected += 1
+                    self.letter_collected = True
+                    # Supprimer la lettre une fois collectée
+                    self.letter.remove_from_sprite_lists()
+                    self.game_view.items_collected += 1
 
         # Vérifier les collisions avec les spikes dans le passé
         if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
@@ -298,37 +307,136 @@ class MapView2(BaseMapView):
                 # Redémarrer le jeu en cas de collision avec les spikes
                 self.game_view.setup()
 
+        # Mettre à jour l'arrière-plan si la temporalité change
+        expected_background_file = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
+        if self.background_file_name != expected_background_file:
+            self.update_background()
 
-class MapView3(BaseMapView):
+
+class MapForest(BaseMapView):
     """ Third map view """
 
+    def __init__(self, game_view):
+        super().__init__(game_view)
+        # Variable pour stocker le nom du fichier d'arrière-plan
+        self.background_file_name = None
+        self.background = None
+        self.update_background()
+
+    def update_background(self):
+        """Update background image based on temporal state."""
+        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
+        self.background_file_name = f"assets/images/backgrounds/forest_map_{
+            self.game_view.temporal_state}.png"
+        self.background = arcade.Sprite(self.background_file_name)
+
+        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
+        image_width = self.background.width
+        image_height = self.background.height
+
+        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
+        self.background.scale = max(
+            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+
+        # Positionner l'arrière-plan au centre de l'écran
+        self.background.center_x = SCREEN_WIDTH // 2
+        self.background.center_y = SCREEN_HEIGHT // 2
+
     def on_draw(self):
         """ Draw the map. """
+<<<<<<< HEAD
+        self.background.draw()
+
+        arcade.draw_text("The Forest", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+
+        # Dessiner des objets en fonction de l'état temporel
+=======
+<<<<<<< HEAD
+        arcade.draw_text("Map 3: The Forest", 100, 400, arcade.color.GREEN, 30)
+=======
         arcade.draw_text("🌊 Map 3: The Lake", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+>>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
         # Draw objects based on temporal state
+>>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Peaceful Lake 🦆", 10,
+            arcade.draw_text("Present: Lush Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Drained Lake 🏞️", 10,
+            arcade.draw_text("Past: Burnt Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
+    def on_update(self, delta_time):
+        """Met à jour l'arrière-plan si l'état temporel change."""
+        # Comparer l'état temporel actuel avec celui du fichier chargé
+        expected_background_file = f"assets/images/backgrounds/forest_map_{
+            self.game_view.temporal_state}.png"
+        if self.background_file_name != expected_background_file:
+            self.update_background()
 
-class MapView4(BaseMapView):
+
+class MapCITY(BaseMapView):
     """ Fourth map view """
+
+    def __init__(self, game_view):
+        super().__init__(game_view)
+        # Variable pour stocker le nom du fichier d'arrière-plan
+        self.background_file_name = None
+        self.background = None
+        self.update_background()
+
+    def update_background(self):
+        """Update background image based on temporal state."""
+        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
+        self.background_file_name = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
+        self.background = arcade.Sprite(self.background_file_name)
+
+        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
+        image_width = self.background.width
+        image_height = self.background.height
+
+        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
+        self.background.scale = max(
+            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+
+        # Positionner l'arrière-plan au centre de l'écran
+        self.background.center_x = SCREEN_WIDTH // 2
+        self.background.center_y = SCREEN_HEIGHT // 2
 
     def on_draw(self):
         """ Draw the map. """
+<<<<<<< HEAD
+        self.background.draw()
+
+        arcade.draw_text("The City", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        # Dessiner des objets en fonction de l'état temporel
+=======
+<<<<<<< HEAD
+        arcade.draw_text("Map 4: The Home", 100, 400, arcade.color.GREEN, 30)
+=======
         arcade.draw_text("🏙️ Map 4: The City", 10,
                          SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+>>>>>>> 70664a0ef42cd61da9e2048f6bffea5d75f8ee89
         # Draw objects based on temporal state
+>>>>>>> 5a71c28b54974d7f3f679465973ab503c4f4bec7
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Busy Streets 🚗", 10,
+            arcade.draw_text("Present: Busy Streets", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Silent Ruins 🏚️", 10,
+            arcade.draw_text("Past: Silent Ruins", 10,
                              SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+
+    def on_update(self, delta_time):
+        """Met à jour l'arrière-plan si l'état temporel change."""
+        # Comparer l'état temporel actuel avec celui du fichier chargé
+        expected_background_file = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
+        if self.background_file_name != expected_background_file:
+            self.update_background()
 
 
 def main():
