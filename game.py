@@ -1,4 +1,5 @@
 import arcade
+import arcade.gui
 
 # --- Constants ---
 SCREEN_WIDTH = 1440
@@ -151,7 +152,7 @@ class GameView(arcade.View):
 
         # Create the views (levels)
         self.views = [
-            MapView1(self),
+            Introduction(self),
             MapForest(self),
             MapWinter(self),
             MapCITY(self)
@@ -160,6 +161,9 @@ class GameView(arcade.View):
     def setup(self):
         """ Set up the game here. """
         self.player_sprite = PlayerCharacter()
+        # Set the player's position to the center of the screen for the introduction
+        self.player_sprite.center_x = SCREEN_WIDTH // 2
+        self.player_sprite.center_y = SCREEN_HEIGHT // 2
 
     def on_draw(self):
         """ Draw the current view based on the current temporal state. """
@@ -176,10 +180,6 @@ class GameView(arcade.View):
                          150, SCREEN_HEIGHT - 40, arcade.color.WHITE, 20)
         arcade.draw_text(f"Collected: {self.items_collected}", SCREEN_WIDTH -
                          150, SCREEN_HEIGHT - 70, arcade.color.WHITE, 20)
-
-        # Draw instruction to change time
-        arcade.draw_text("Press Space to change of time...",
-                         SCREEN_WIDTH // 2 - 100, 10, arcade.color.WHITE, 15)
 
     def on_key_press(self, key, modifiers):
         """ Handle key press for moving the player and switching temporal state. """
@@ -242,7 +242,7 @@ class BaseMapView:
         pass
 
 
-class MapView1(BaseMapView):
+class Introduction(BaseMapView):
     """ First map view: House """
 
     def __init__(self, game_view):
@@ -254,48 +254,80 @@ class MapView1(BaseMapView):
         # Adjust the scale of the background to fit the screen
         image_width = self.background.width
         image_height = self.background.height
-
-        # Scale to match the window size
         self.background.scale = max(
             SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
-
-        # Set the background position to the center of the screen
         self.background.center_x = SCREEN_WIDTH // 2
         self.background.center_y = SCREEN_HEIGHT // 2
 
+        # Create the UI Manager for the button
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+
+        # Create the "Let's go" button
+        self.lets_go_button = arcade.gui.UIFlatButton(
+            text="Let's go !", width=200)
+
+        # Center the button at the bottom of the screen
+        self.v_box = arcade.gui.UIBoxLayout()
+        self.v_box.add(self.lets_go_button.with_space_around(bottom=240))
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x", anchor_y="bottom", child=self.v_box)
+        )
+
+        # Set up the button click event
+        self.lets_go_button.on_click = self.on_lets_go_click
+
+    def on_lets_go_click(self, event):
+        """Switch to the next map when the button is clicked."""
+        # reset player position to left edge
+        self.game_view.player_sprite.center_x = PLAYER_BORDER_PADDING + 60
+        self.game_view.player_sprite.center_y = SCREEN_HEIGHT // 2 - 120
+
+        self.game_view.current_view = (
+            self.game_view.current_view + 1) % len(self.game_view.views)
+
     def on_draw(self):
         """ Draw the map. """
-
         # Draw the background
         self.background.draw()
 
+        # Draw a semi-transparent background box for the text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH - 20, 160, arcade.color.BLACK + (200,))
+
         # Draw the map details
-        arcade.draw_text("The Kitchen", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        arcade.draw_text("At home", 20, SCREEN_HEIGHT -
+                         80, arcade.color.GREEN, 24)
 
-        # Draw objects based on temporal state
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Cozy Kitchen ", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+        # Draw the introduction text
+        arcade.draw_text(
+            "Arrrrffff ! You and Kelly are fighting because you broke her favorite paint palette and got paint all over the floor....",
+            20, SCREEN_HEIGHT - 150, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+        )
+        arcade.draw_text(
+            "She's so mad that she's left the house and you're not sure where she's gone.",
+            20, SCREEN_HEIGHT - 180, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+        )
+        arcade.draw_text(
+            "You need to find her and apologize before she gets too far away.",
+            20, SCREEN_HEIGHT - 210, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+        )
 
-            oven = arcade.Sprite(
-                ":resources:images/tiles/brickTextureWhite.png", TILE_SCALING)
-            oven.center_x = 200
-            oven.center_y = 150
-            oven.draw()
+        # Draw the button
+        self.manager.draw()
 
-        else:
-            arcade.draw_text("Past: Abandoned Kitchen ", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+    def on_key_press(self, key, modifiers):
+        """ Disable key press during the introduction """
+        pass
 
-            # Add kitchen props
+    def on_key_release(self, key, modifiers):
+        """ Disable key release during the introduction """
+        pass
 
-            fridge = arcade.Sprite(
-                ":resources:images/tiles/lockYellow.png", TILE_SCALING)
-            fridge.center_x = 300
-            fridge.center_y = 150
-
-            fridge.draw()
+    def on_hide_view(self):
+        """ Disable the manager when switching to another view """
+        self.manager.disable()
 
 
 class MapWinter(BaseMapView):
