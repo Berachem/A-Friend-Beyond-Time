@@ -1,9 +1,11 @@
 import arcade
+import arcade.gui
 
 # --- Constants ---
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Lost in Time, Found in Friendship"
+
 
 # Temporal Constants
 PAST = "past"
@@ -138,6 +140,16 @@ class GameView(arcade.View):
     Main game class with 4 views
     """
 
+    def restart(self):
+        """ Reset game state to start over """
+        self.setup()  # Reinitialize the game state
+        self.time_elapsed = 0
+        self.items_collected = 0
+        self.current_view = 0
+        self.player_sprite.center_x = PLAYER_START_X
+        self.player_sprite.center_y = PLAYER_START_Y
+        self.views[self.current_view].setup()  # Assuming views need to be reset
+    
     def __init__(self):
         super().__init__()
         self.player_sprite = None
@@ -523,10 +535,81 @@ class MapCITY(BaseMapView):
 
             if flames_hit_list:
                 # Si une collision est détectée, revenir à la première map
-                self.game_view.current_view = 0  # Retour à la première carte
-                self.game_view.player_sprite.center_x = PLAYER_START_X  # Position de départ sur la première carte
-                self.game_view.player_sprite.center_y = PLAYER_START_Y
-                self.game_view.change_view(0)  # Change la vue vers la première carte
+                game_over = GameOverView()
+                self.game_view.window.show_view(game_over)  # Use game_view.window
+
+
+import arcade
+import arcade.gui
+
+class GameOverView(arcade.View):
+    """ View to show when the game is over """
+
+    def __init__(self):
+        """ This is run once when we switch to this view """
+        super().__init__()
+        arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
+
+        # Initialize the UI manager and vertical box layout
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        # Add v_box to the manager
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box
+            )
+        )
+
+        # Create and add buttons
+        self.create_buttons()
+
+    def create_buttons(self):
+        """ Create the restart and quit buttons """
+        # Restart Button
+        restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
+        restart_button.on_click = self.on_restart_button_click
+        self.v_box.add(restart_button)
+
+        # Quit Button
+        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        quit_button.on_click = self.on_quit_button_click
+        self.v_box.add(quit_button)
+
+    def on_restart_button_click(self, event):
+        """ Handle the restart button click """
+        # Restart the game
+        self.window.show_view(GameView())  # Create a new instance of GameView
+
+    def on_quit_button_click(self, event):
+        """ Handle the quit button click """
+        # Quit the application
+        arcade.exit()
+
+    def on_draw(self):
+        """ Draw this view """
+        self.clear()
+
+        # Draw the game over text
+        arcade.draw_text(
+            "Game Over",
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 + 100,  # Shift the text upwards a bit
+            arcade.color.WHITE,
+            30,
+            anchor_x="center",
+        )
+
+        # Draw the UI manager (this draws the buttons)
+        self.manager.draw()
+
+    def on_show_view(self):
+        """ This is called when we switch to this view """
+        # Make sure the mouse cursor is visible
+        self.window.set_mouse_visible(True)
 
 
 def main():
