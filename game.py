@@ -1,8 +1,8 @@
 import arcade
 
 # --- Constants ---
-SCREEN_WIDTH = 1500
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1040
+SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Lost in Time, Found in Friendship"
 
 # Temporal Constants
@@ -14,7 +14,6 @@ CHARACTER_SCALING = TILE_SCALING * 2
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
-GRAVITY = 1.0
 PLAYER_JUMP_SPEED = 15
 
 PLAYER_START_X = 100
@@ -38,10 +37,6 @@ class PlayerCharacter(arcade.Sprite):
         # Update position based on movement speed
         self.center_x += self.change_x
         self.center_y += self.change_y
-
-        # Gravity
-        if self.center_y > 0:
-            self.change_y -= GRAVITY
 
         # Limit player to screen bounds vertically
         if self.center_y < 0:
@@ -84,9 +79,9 @@ class GameView(arcade.View):
         self.player_sprite.draw()
 
         # Overlay for temporal state
-        arcade.draw_text(f"Temporal State: {self.temporal_state}",
-                         10, SCREEN_HEIGHT - 30,
-                         arcade.color.WHITE, 20)
+        # arcade.draw_text(f"🕰️ Temporal State: {self.temporal_state}",
+        #                10, SCREEN_HEIGHT - 40,
+        #                arcade.color.WHITE, 20)
 
     def on_key_press(self, key, modifiers):
         """ Handle key press for moving the player and switching temporal state. """
@@ -103,14 +98,15 @@ class GameView(arcade.View):
         elif key == arcade.key.LEFT:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.UP:
-            # Add jumping logic here if needed
-            self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.DOWN:
+            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, key, modifiers):
         """ Handle key release for player movement. """
-        if key == arcade.key.RIGHT or key == arcade.key.LEFT:
+        if key in [arcade.key.RIGHT, arcade.key.LEFT]:
             self.player_sprite.change_x = 0
-        elif key == arcade.key.UP or key == arcade.key.DOWN:
+        elif key in [arcade.key.UP, arcade.key.DOWN]:
             self.player_sprite.change_y = 0
 
     def on_update(self, delta_time):
@@ -124,10 +120,13 @@ class GameView(arcade.View):
             self.current_view = (self.current_view + 1) % len(self.views)
             self.player_sprite.center_x = PLAYER_BORDER_PADDING  # Reset player to left edge
         elif self.player_sprite.center_x < PLAYER_BORDER_PADDING:
-            # Player reached the left edge, go to the previous map
-            self.current_view = (self.current_view - 1) % len(self.views)
-            self.player_sprite.center_x = SCREEN_WIDTH - \
-                PLAYER_BORDER_PADDING  # Reset player to right edge
+            # Prevent transition from map 1 to map 4 by going left
+            if self.current_view == 0:
+                self.player_sprite.center_x = PLAYER_BORDER_PADDING  # Keep player on map 1
+            else:
+                self.current_view = (self.current_view - 1) % len(self.views)
+                self.player_sprite.center_x = SCREEN_WIDTH - \
+                    PLAYER_BORDER_PADDING  # Reset player to right edge
 
 
 class BaseMapView:
@@ -149,14 +148,28 @@ class MapView1(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 1: The House", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("🏡 Map 1: The Kitchen", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Cozy Home", 100,
-                             350, arcade.color.WHITE, 20)
+            arcade.draw_text("Present: Cozy Kitchen 🍳", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Abandoned Ruins", 100,
-                             350, arcade.color.GRAY, 20)
+            arcade.draw_text("Past: Abandoned Kitchen 🥄", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+
+        # Add kitchen props
+        oven = arcade.Sprite(
+            ":resources:images/tiles/brickTextureWhite.png", TILE_SCALING)
+        fridge = arcade.Sprite(
+            ":resources:images/tiles/lockYellow.png", TILE_SCALING)
+        oven.center_x = 200
+        oven.center_y = 150
+        fridge.center_x = 300
+        fridge.center_y = 150
+
+        oven.draw()
+        fridge.draw()
 
 
 class MapView2(BaseMapView):
@@ -164,14 +177,15 @@ class MapView2(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 2: The Forest", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("🌲 Map 2: The Forest", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Lush Trees", 100,
-                             350, arcade.color.WHITE, 20)
+            arcade.draw_text("Present: Lush Trees 🌳", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Burnt Forest", 100,
-                             350, arcade.color.GRAY, 20)
+            arcade.draw_text("Past: Burnt Forest 🌲🔥", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
 
 class MapView3(BaseMapView):
@@ -179,14 +193,15 @@ class MapView3(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 3: The Lake", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("🌊 Map 3: The Lake", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Peaceful Lake", 100,
-                             350, arcade.color.WHITE, 20)
+            arcade.draw_text("Present: Peaceful Lake 🦆", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Drained Lake", 100,
-                             350, arcade.color.GRAY, 20)
+            arcade.draw_text("Past: Drained Lake 🏞️", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
 
 class MapView4(BaseMapView):
@@ -194,14 +209,15 @@ class MapView4(BaseMapView):
 
     def on_draw(self):
         """ Draw the map. """
-        arcade.draw_text("Map 4: The City", 100, 400, arcade.color.GREEN, 30)
+        arcade.draw_text("🏙️ Map 4: The City", 10,
+                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
         # Draw objects based on temporal state
         if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Busy Streets", 100,
-                             350, arcade.color.WHITE, 20)
+            arcade.draw_text("Present: Busy Streets 🚗", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
         else:
-            arcade.draw_text("Past: Silent Ruins", 100,
-                             350, arcade.color.GRAY, 20)
+            arcade.draw_text("Past: Silent Ruins 🏚️", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
 
 
 def main():
