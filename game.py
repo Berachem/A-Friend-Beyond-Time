@@ -1,5 +1,14 @@
 import arcade
 import arcade.gui
+from enum import Enum
+import math
+# Constants specific to the forest map
+TILE_SCALING = 1.1
+TILE_SIZE = 16
+COLLECTING_DISTANCE = (TILE_SIZE * TILE_SCALING) * 4
+CHASING_DISTANCE = TILE_SIZE * TILE_SCALING * 5
+PLAYER_SPEED = 5
+CHASING_SPEED = 5
 
 # --- Constants ---
 SCREEN_WIDTH = 1440
@@ -11,8 +20,8 @@ SCREEN_TITLE = "Lost in Time, Found in Friendship"
 PAST = "past"
 PRESENT = "present"
 
-TILE_SCALING = 0.5
-CHARACTER_SCALING = TILE_SCALING * 2
+# TILE_SCALING = 0.5
+CHARACTER_SCALING = TILE_SCALING * .7
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
@@ -160,6 +169,7 @@ class GameView(arcade.View):
         self.temporal_state = PRESENT  # Current temporal state
         self.current_view = 0          # Keep track of the current view
         self.physics_engine = None
+        self.setup() 
 
         # HUD elements
         self.time_elapsed = 0
@@ -181,7 +191,7 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             Introduction(self),
-            MapForest(self),
+            MapForest(self,self.player_sprite),
             MapWinter(self),
             MapCITY(self)
         ]
@@ -300,6 +310,8 @@ class GameView(arcade.View):
             self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.DOWN:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+        
+        self.views[self.current_view].on_key_press(key,modifiers)
 
     def on_key_release(self, key, modifiers):
         """ Handle key release for player movement. """
@@ -547,145 +559,168 @@ class MapWinter(BaseMapView):
 
 
 class MapForest(BaseMapView):
-    """ Third map view """
+  def __init__(self, game_view, game_player_sprite):
+    super().__init__(game_view)
+    self.game_view = game_view
+    self.player_sprite = game_player_sprite
+    print("here goes player", game_player_sprite)
+    self.tile_map = None
+    self.scene = None
+    self.physics_engine = None
+    self.mail_sprite = None
+    self.wood = 0
+    self.is_bridge_constructed = False
+    self.feeded_dogs = 0
+    self.tense = Tense.PRESENT
+    self.setup()
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
-        self.letter_collected = False
-        self.letter = None
-        self.show_dialog = False  # Flag to show the dialog window
-        self.dialog_ui = None  # UIManager for the dialog
-        # Variable pour stocker le nom du fichier d'arrière-plan
-        self.background_file_name = None
-        self.background = None
-        self.update_background()
+  def setup(self):
+    map_name = "assets/maps/forest/test-map.json"
+    self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
+    self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-        # Setup the dialog UI manager
-        self.setup_ui()
+    mail_source = "assets/maps/raw/mail.png"
+    self.mail_sprite = arcade.Sprite(mail_source, .3)
+    self.mail_sprite.center_x = 75 * TILE_SIZE
+    self.mail_sprite.center_y = 35 * TILE_SIZE
+    self.scene.add_sprite("mail", self.mail_sprite)
+    self.mail_sprite.visible = False
 
-    def setup_ui(self):
-        """ Setup the UI manager and the dialog box. """
-        self.dialog_ui = arcade.gui.UIManager()
-        self.dialog_ui.enable()
+    # Setup physics engine
+    self.update_walls_in_engine([self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
 
-        # Create a box layout to organize the dialog and the button
-        self.v_box = arcade.gui.UIBoxLayout()
+  def update_walls_in_engine(self, walls):
+    self.physics_engine = arcade.PhysicsEngineSimple(
+      self.player_sprite, walls=walls
+    )
 
-        # Create the dialog text
-        self.dialog_text = arcade.gui.UILabel(
-            text="Vous avez écrit une lettre pour Kelly !",
-            text_color=arcade.color.BLACK,
-            font_size=18,
-            width=500,
-            align="center",
-        )
+  def near_sprites_in_list_aux(self, sprite_list_1, sprite_list_2, action, radius):
+    for sprite1 in sprite_list_1:
+        for sprite2 in sprite_list_2:
+          distance = math.sqrt((sprite1.center_x - sprite2.center_x) ** 2 + 
+                              (sprite1.center_y - sprite2.center_y) ** 2)
+          if distance < radius:
+            action(sprite1)
+            break
 
-        self.v_box.add(self.dialog_text.with_space_around(bottom=20))
+  def near_sprites_in_list(self, sprite_list, action):
+    self.near_sprites_in_list_aux(sprite_list, [self.player_sprite], action, COLLECTING_DISTANCE)
 
-        # Create the "OK" button
-        ok_button = arcade.gui.UIFlatButton(text="OK", width=200)
-        self.v_box.add(ok_button)
+  def collect_wood(self, collectable):
+    self.scene["collectables"].remove(collectable)
+    self.wood += 1
 
-        # Attach the button click event
-        ok_button.on_click = self.on_ok_click
+  def display_invisibles(self, invisibles):
+    if self.wood > 3 and self.tense == Tense.PAST:
+      self.scene["invisibles"].visible = True
+      self.scene["dog-food"].visible = True
+      self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      self.is_bridge_constructed = True
 
-        # Add the UIBoxLayout with all widgets to the UIManager
-        self.dialog_ui.add(
-            arcade.gui.UIAnchorWidget(
-                anchor_x="center_x",
-                anchor_y="center_y",
-                child=self.v_box
-            )
-        )
+  def chase_player(self, sprite, speed):
+    x_diff = self.player_sprite.center_x - sprite.center_x
+    y_diff = self.player_sprite.center_y - sprite.center_y
+    distance = math.sqrt(x_diff ** 2 + y_diff ** 2)
+    if distance < 0.01:
+      return  # Avoid division by zero
+    sprite.center_x += (x_diff / distance) * speed
+    sprite.center_y += (y_diff / distance) * speed
 
-    def on_draw(self):
-        """ Draw the map and the dialog if applicable. """
-        self.background.draw()
+  def chase_by_dogs(self):
+    if self.tense == Tense.PRESENT and self.feeded_dogs < 4:
+      self.scene["angry-dogs"].visible = True
+      self.scene["friendly-dogs"].visible = False
+      for dog in self.scene["angry-dogs"]:
+        distance = math.sqrt((dog.center_x - self.player_sprite.center_x) ** 2 + 
+                            (dog.center_y - self.player_sprite.center_y) ** 2)
+        if distance < CHASING_DISTANCE:  # Check if the dog is near the player
+          self.chase_player(dog, CHASING_SPEED)  # Make the dog chase the player
 
-        arcade.draw_text("The Forest", 10, SCREEN_HEIGHT -
-                         60, arcade.color.GREEN, 24)
+  def chase_by_dog_food(self):
+    for food in self.scene["dog-food"]:
+      distance = math.sqrt((food.center_x - self.player_sprite.center_x) ** 2 + 
+                          (food.center_y - self.player_sprite.center_y) ** 2)
+      if distance < TILE_SIZE * TILE_SCALING * 2:
+        self.chase_player(food, PLAYER_SPEED * 2)
 
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Lush Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
-            if not self.letter_collected:
-                if self.letter is None:
-                    self.letter = arcade.Sprite(
-                        "assets/images/items/letter.png", 0.10)
-                    self.letter.center_x = 400
-                    self.letter.center_y = 400
-                self.letter.draw()
+  def feed_dog(self, dog_food_sprite):
+    print("dogs are feeded")
+    self.feeded_dogs += 1
+    self.scene["dog-food"].remove(dog_food_sprite)
+    if(self.feeded_dogs >= 4):
+      self.mail_sprite.visible = True
 
-        else:
-            arcade.draw_text("Past: Burnt Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
-            spikes = arcade.Sprite(
-                ":resources:images/enemies/saw.png", TILE_SCALING)
-            spikes.center_x = SCREEN_WIDTH // 2
-            spikes.center_y = SCREEN_HEIGHT // 2
-            spikes.draw()
+  def switch_tense(self):
+    if self.tense == Tense.PRESENT:
+      if not self.is_bridge_constructed : 
+        self.scene["invisibles"].visible = False
+        self.scene["bridge-blocks"].visible = True
+        self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"], self.scene["bridge-blocks"]])
+      else:
+        self.scene["invisibles"].visible = True
+        self.scene["bridge-blocks"].visible = False
+        self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      
+      self.scene["angry-dogs"].visible = False
+      self.scene["friendly-dogs"].visible = False
+      self.scene["young-dogs"].visible = True
+      self.scene["dog-food"].visible = True if self.is_bridge_constructed else False
+      
 
-            female_adventurer = arcade.Sprite(
-                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
-            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
-            female_adventurer.center_y = SCREEN_HEIGHT // 2
-            female_adventurer.draw()
+      self.tense = Tense.PAST
 
-        # If the dialog is active, draw the dialog
-        if self.show_dialog:
-            # Draw the rectangle for the dialog background
-            arcade.draw_rectangle_filled(
-                # Beige with transparency
-                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 450, 200, (245,
-                                                                  245, 220, 250)
-            )
+    else:
+      self.scene["invisibles"].visible = True
+      self.scene["bridge-blocks"].visible = False
+      
+      if self.feeded_dogs >= 4:
+        self.scene["angry-dogs"].visible = False
+        self.scene["friendly-dogs"].visible = True
+        self.update_walls_in_engine([self.scene["friendly-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      else:
+        self.scene["angry-dogs"].visible = True
+        self.scene["friendly-dogs"].visible = False
+        self.update_walls_in_engine([self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
 
-            # Draw the UI elements
-            self.dialog_ui.draw()
+      self.scene["young-dogs"].visible = False
+      self.scene["dog-food"].visible = False
 
-    def on_ok_click(self, event):
-        """ Handle click event for the OK button. """
-        self.show_dialog = False  # Hide the dialog
-        self.dialog_ui.disable()  # Disable the UI when dialog is closed
+      self.tense = Tense.PRESENT
 
-    def update_background(self):
-        """Update background image based on temporal state."""
-        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
-        self.background = arcade.Sprite(self.background_file_name)
+  def on_draw(self):
+    # pass
+    arcade.start_render()
+    self.scene.draw()
+    if self.mail_sprite.visible == True:
+      arcade.draw_text("Congrats ! you kept your promise.", TILE_SIZE*TILE_SCALING*53, TILE_SIZE*TILE_SCALING*35, arcade.color.BLACK, 15)
 
-        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
-        image_width = self.background.width
-        image_height = self.background.height
+  def on_key_press(self, key, modifiers):
+    if key == arcade.key.UP:
+      self.player_sprite.change_y = PLAYER_SPEED
+    elif key == arcade.key.DOWN:
+      self.player_sprite.change_y = -PLAYER_SPEED
+    elif key == arcade.key.LEFT:
+      self.player_sprite.change_x = -PLAYER_SPEED
+    elif key == arcade.key.RIGHT:
+      self.player_sprite.change_x = PLAYER_SPEED
+    elif key == arcade.key.ENTER:
+      self.near_sprites_in_list(self.scene["invisibles"], self.display_invisibles)
+      self.near_sprites_in_list(self.scene["collectables"], self.collect_wood)
+      self.near_sprites_in_list_aux(self.scene["dog-food"], self.scene["young-dogs"], self.feed_dog, COLLECTING_DISTANCE*3)
+    elif key == arcade.key.SPACE:
+      self.switch_tense()
 
-        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
-        self.background.scale = max(
-            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+  def on_key_release(self, key, modifiers):
+    if key == arcade.key.UP or key == arcade.key.DOWN:
+      self.player_sprite.change_y = 0
+    elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
+      self.player_sprite.change_x = 0
 
-        # Positionner l'arrière-plan au centre de l'écran
-        self.background.center_x = SCREEN_WIDTH // 2
-        self.background.center_y = SCREEN_HEIGHT // 2
-
-    def on_update(self, delta_time):
-        """ Update the map and handle letter collection. """
-        if self.game_view.temporal_state == PRESENT and not self.letter_collected:
-            if self.letter and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
-                    self.letter_collected = True
-                    self.letter.remove_from_sprite_lists()
-                    self.game_view.items_collected += 1
-                    self.show_dialog = True  # Show the dialog when the letter is collected
-                    self.dialog_ui.enable()  # Enable the UI for the dialog
-
-        # Update the background if the temporal state changes
-        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
-        if self.background_file_name != expected_background_file:
-            self.update_background()
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        """ Handle mouse clicks to close the dialog window. """
-        if self.show_dialog:
-            self.dialog_ui.on_mouse_press(x, y, button, modifiers)
+  def on_update(self, delta_time):
+    pass
+    self.chase_by_dogs()
+    self.chase_by_dog_food()
+    self.physics_engine.update()
 
 
 class MapCITY(BaseMapView):
@@ -911,12 +946,14 @@ class GameOverView(arcade.View):
         # Make sure the mouse cursor is visible
         self.window.set_mouse_visible(True)
 
+class Tense(Enum):
+    PRESENT = 1
+    PAST = 2
 
 def main():
     """ Main function """
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     game_view = GameView()
-    game_view.setup()
     window.show_view(game_view)
     arcade.run()
 
