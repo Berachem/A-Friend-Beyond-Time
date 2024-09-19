@@ -796,13 +796,36 @@ class Arrivee(BaseMapView):
         )
 
         # Create and add the restart button
-        self.create_restart_button()
+        self.create_button()
 
-    def create_restart_button(self):
-        """ Create the restart button """
+    # def create_button(self):
+    #     """ Create the restart button """
+    #     restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
+    #     restart_button.on_click = self.on_restart_button_click
+    #     self.v_box.add(restart_button.with_space_around(top=800, bottom=400,right=200))
+
+    #     # Quit Button
+    #     quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+    #     quit_button.on_click = self.on_quit_button_click
+    #     self.v_box.add(quit_button)
+
+    def create_button(self):
+        """ Create the restart and quit buttons """
+        # Create a horizontal box layout
+        h_box = arcade.gui.UIBoxLayout(horizontal=True)
+
+        # Restart Button
         restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
         restart_button.on_click = self.on_restart_button_click
-        self.v_box.add(restart_button.with_space_around(top=800, bottom=400,right=200))
+        h_box.add(restart_button.with_space_around(right=200,bottom=20))  # Add space to the right of the Restart button
+
+        # Quit Button
+        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        quit_button.on_click = self.on_quit_button_click
+        h_box.add(quit_button.with_space_around(right=200))  # Add Quit button next to Restart button
+
+        # Add the horizontal box to the vertical box layout (centered)
+        self.v_box.add(h_box.with_space_around(top=800, bottom=400))
 
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
@@ -812,6 +835,11 @@ class Arrivee(BaseMapView):
         game_view.current_view = 0  # Ensure the introduction view is the first view
         self.game_view.window.show_view(game_view)  # Show the GameView with Introduction
 
+    def on_quit_button_click(self, event):
+        """ Handle the quit button click """
+        # Quit the application
+        arcade.exit()
+
 
     def on_draw(self):
         """ Draw the arrival scene with the 'You Win' message and restart button """
@@ -819,24 +847,22 @@ class Arrivee(BaseMapView):
         self.background.draw()
 
         # Adjust the rectangle to be taller to fit all the text
+        rectangle_height = 150  # Increased to fit all text
         arcade.draw_rectangle_filled(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 160, SCREEN_WIDTH, 100, arcade.color.BLACK + (200,)
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
         )
 
         # Draw the "At Killy's home" message centered inside the rectangle
-        arcade.draw_text("At Killy's home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100,
+        arcade.draw_text("At Killy's home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
                         arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
-
-        # Draw the introduction and mission texts inside the rectangle, adjusting vertical spacing
-        text_start_y = SCREEN_HEIGHT - 150  # Start slightly lower than the top of the rectangle
-        line_spacing = 40  # Space between each line of text
 
         # Draw each part of the story, ensuring long lines are wrapped within the screen width
         arcade.draw_text(
             "Congratulations! You’ve completed the three missions that have tested your resolve, responsibility, and kindness.",
-            40, text_start_y, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
         )
-
+        
         # Draw the UI manager (this draws the restart button)
         self.manager.draw()
 
