@@ -183,7 +183,9 @@ class GameView(arcade.View):
             Introduction(self),
             MapForest(self),
             MapWinter(self),
-            MapCITY(self)
+            MapCITY(self),
+            Arrivee(self)
+
         ]
 
     def change_view(self, new_view_index):
@@ -751,7 +753,7 @@ class Arrivee(BaseMapView):
         super().__init__(game_view)
 
         # Load the background image
-        self.background = arcade.Sprite("assets/images/backgrounds/arrivee.png")
+        self.background = arcade.Sprite("assets/images/backgrounds/kelly_house.png")
 
         # Adjust the scale of the background to fit the screen
         image_width = self.background.width
@@ -781,7 +783,7 @@ class Arrivee(BaseMapView):
         """ Create the restart button """
         restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
         restart_button.on_click = self.on_restart_button_click
-        self.v_box.add(restart_button)
+        self.v_box.add(restart_button.with_space_around(top=800, bottom=400,right=200))
 
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
@@ -791,25 +793,34 @@ class Arrivee(BaseMapView):
         game_view.current_view = 0  # Ensure the introduction view is the first view
         self.game_view.window.show_view(game_view)  # Show the GameView with Introduction
 
+
     def on_draw(self):
         """ Draw the arrival scene with the 'You Win' message and restart button """
-        self.clear()
-
         # Draw the background
         self.background.draw()
 
-        # Draw the "You Win" message
+        # Adjust the rectangle to be taller to fit all the text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 160, SCREEN_WIDTH, 100, arcade.color.BLACK + (200,)
+        )
+
+        # Draw the "At Killy's home" message centered inside the rectangle
+        arcade.draw_text("At Killy's home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100,
+                        arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+
+        # Draw the introduction and mission texts inside the rectangle, adjusting vertical spacing
+        text_start_y = SCREEN_HEIGHT - 150  # Start slightly lower than the top of the rectangle
+        line_spacing = 40  # Space between each line of text
+
+        # Draw each part of the story, ensuring long lines are wrapped within the screen width
         arcade.draw_text(
-            "You Win!",
-            SCREEN_WIDTH / 2,
-            SCREEN_HEIGHT / 2 + 150,  # Position the text above the button
-            arcade.color.WHITE,
-            50,
-            anchor_x="center",
+            "Congratulations! You’ve completed the three missions that have tested your resolve, responsibility, and kindness.",
+            40, text_start_y, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
         )
 
         # Draw the UI manager (this draws the restart button)
         self.manager.draw()
+
 
     def on_show_view(self):
         """ This is called when we switch to this view """
