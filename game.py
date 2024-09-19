@@ -2,6 +2,7 @@ import arcade
 import arcade.gui
 import math
 from tense import Tense
+from skimap import MapWinter
 
 # Constants specific to the forest map
 TILE_SCALING = 1.1
@@ -12,6 +13,7 @@ PLAYER_SPEED = 5
 CHASING_SPEED = 5
 
 # --- Constants ---
+
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Lost in Time, Found in Friendship"
@@ -172,8 +174,8 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             Introduction(self),
+            MapWinter(self, self.player_sprite),
             MapForest(self, self.player_sprite),
-            MapWinter(self),
             MapCITY(self)
         ]
 
@@ -367,116 +369,11 @@ class Introduction(BaseMapView):
         """ Disable the manager when switching to another view """
         self.manager.disable()
 
-
-class MapWinter(BaseMapView):
-    """ Second map view """
-
-    def __init__(self, game_view):
-        super().__init__(game_view)
-        self.broken_heart_collected = False
-        self.normal_heart_collected = False
-        self.broken_heart = None
-        self.normal_heart = None
-
-        # Variable pour stocker le nom du fichier d'arrière-plan
-        self.background_file_name = None
-        self.background = None
-        self.update_background()
-
-    def update_background(self):
-        """Update background image based on temporal state."""
-        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
-        self.background = arcade.Sprite(self.background_file_name)
-
-        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
-        image_width = self.background.width
-        image_height = self.background.height
-
-        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
-        self.background.scale = max(
-            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
-
-        # Positionner l'arrière-plan au centre de l'écran
-        self.background.center_x = SCREEN_WIDTH // 2
-        self.background.center_y = SCREEN_HEIGHT // 2
-
-    def on_draw(self):
-        """ Draw the map. """
-
-        # Dessiner l'arrière-plan
-        self.background.draw()
-
-        arcade.draw_text("The Winter Land", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
-
-        # Dessiner des objets en fonction de l'état temporel
-
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Snowy Landscape", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
-
-            if not self.broken_heart_collected:
-                # Si le cœur brisé n'a pas été collecté, on le dessine
-                if self.broken_heart is None:
-                    self.broken_heart = arcade.Sprite(
-                        "assets/images/items/coeurBrise.png", 0.30)  # Augmenter la taille avec scale 0.20
-                    self.broken_heart.center_x = 400
-                    self.broken_heart.center_y = 400
-                self.broken_heart.draw()
-
-        else:
-            arcade.draw_text("Past: Frozen Wasteland", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 30)
-
-            if not self.normal_heart_collected:
-                # Si le cœur normal n'a pas été collecté, on le dessine
-                if self.normal_heart is None:
-                    self.normal_heart = arcade.Sprite(
-                        "assets/images/items/coeur.png", 0.30)  # Augmenter la taille avec scale 0.20
-                    self.normal_heart.center_x = 1150
-                    self.normal_heart.center_y = 350
-                self.normal_heart.draw()
-
-    def on_update(self, delta_time):
-        """ Handle updates such as collecting hearts and checking collisions. """
-        # Vérifier la collecte du cœur brisé dans le présent
-        if self.game_view.temporal_state == PRESENT and not self.broken_heart_collected:
-            if self.broken_heart and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.broken_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.broken_heart.center_y) < 50:
-                    self.broken_heart_collected = True
-                    # Supprimer le cœur brisé une fois collecté
-                    self.broken_heart.remove_from_sprite_lists()
-                     # Afficher la vue Game Over
-                    game_over_view = GameOverView()
-                    self.game_view.window.show_view(game_over_view)
-
-        # Vérifier la collecte du cœur normal dans le passé
-        if self.game_view.temporal_state == PAST and not self.normal_heart_collected:
-            if self.normal_heart and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.normal_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.normal_heart.center_y) < 50:
-                    self.normal_heart_collected = True
-                    # Supprimer le cœur normal une fois collecté
-                    self.normal_heart.remove_from_sprite_lists()
-                    self.game_view.items_collected += 1  # Incrémenter le compteur des objets collectés
-                    
-                    # Redirection vers la carte City
-                    self.game_view.change_view(3)  # L'index 3 correspond à la MapCity
-
-        # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
-        if self.background_file_name != expected_background_file:
-            self.update_background()
-
-
-
-
 class MapForest(BaseMapView):
   def __init__(self, game_view, game_player_sprite):
     super().__init__(game_view)
     self.game_view = game_view
     self.player_sprite = game_player_sprite
-    print("here goes player", game_player_sprite)
     self.tile_map = None
     self.scene = None
     self.physics_engine = None
@@ -501,10 +398,6 @@ class MapForest(BaseMapView):
 
     # Setup physics engine
     self.update_walls_in_engine([self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
-
-  def restart(self):
-    self.setup()
-
 
   def update_walls_in_engine(self, walls):
     self.physics_engine = arcade.PhysicsEngineSimple(
@@ -586,8 +479,6 @@ class MapForest(BaseMapView):
       self.scene["friendly-dogs"].visible = False
       self.scene["young-dogs"].visible = True
       self.scene["dog-food"].visible = True if self.is_bridge_constructed else False
-      
-
       self.tense = Tense.PAST
 
     else:
@@ -638,11 +529,10 @@ class MapForest(BaseMapView):
       self.player_sprite.change_x = 0
 
   def on_update(self, delta_time):
-    pass
     self.chase_by_dogs()
     self.chase_by_dog_food()
     self.physics_engine.update()
-
+    self.physics_engine.update()
 
 class MapCITY(BaseMapView):
     """ Fourth map view """
