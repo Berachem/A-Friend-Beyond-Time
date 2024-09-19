@@ -1,6 +1,6 @@
 import arcade
 from Skimap import SkiMap  # Import the SkiMap class
-
+from Citymap import CityMap
 # Constants for the main window
 WINDOW_WIDTH = 68 * 16
 WINDOW_HEIGHT = 40 * 16
@@ -12,7 +12,8 @@ class MyGame(arcade.Window):
     self.current_map = None  # This will hold the map instance
 
   def setup(self):
-    self.current_map = SkiMap()  # Instantiate SkiMap
+    #self.current_map = SkiMap()  # Instantiate SkiMap
+    self.current_map = CityMap()
     self.current_map.setup()  # Setup the map
 
   def on_draw(self):
