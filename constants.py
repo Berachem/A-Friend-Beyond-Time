@@ -1,0 +1,32 @@
+# Constants specific to the forest map
+TILE_SCALING = 1.1
+TILE_SIZE = 16
+COLLECTING_DISTANCE = (TILE_SIZE * TILE_SCALING) * 4
+CHASING_DISTANCE = TILE_SIZE * TILE_SCALING * 5
+PLAYER_SPEED = 5
+CHASING_SPEED = 5
+
+# --- Constants ---
+SCREEN_WIDTH = 1440
+SCREEN_HEIGHT = 800
+SCREEN_TITLE = "Lost in Time, Found in Friendship"
+
+
+# Temporal Constants
+PAST = "past"
+PRESENT = "present"
+
+# TILE_SCALING = 0.5
+CHARACTER_SCALING = TILE_SCALING * .7
+
+# Movement speed of player, in pixels per frame
+PLAYER_MOVEMENT_SPEED = 5
+PLAYER_JUMP_SPEED = 15
+RIGHT_FACING = 0
+LEFT_FACING = 1
+
+PLAYER_START_X = 100
+PLAYER_START_Y = 100
+PLAYER_BORDER_PADDING = 10  # Padding for detecting map change
+HORIZONTAL_TILES = 45
+VERTICAL_TILES = 25
