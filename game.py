@@ -83,7 +83,8 @@ class PlayerCharacter(arcade.Sprite):
         self.cur_texture += 1
         if self.cur_texture >= 8 * 5:  # 8 frames avec une vitesse de changement
             self.cur_texture = 0
-        self.texture = self.walk_textures[self.cur_texture // 5][self.facing_direction]
+        self.texture = self.walk_textures[self.cur_texture //
+                                          5][self.facing_direction]
 
     def update(self):
         """ Update player position """
@@ -144,8 +145,9 @@ class GameView(arcade.View):
         self.current_view = 0
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
-        self.views[self.current_view].setup()  # Assuming views need to be reset
-    
+        # Assuming views need to be reset
+        self.views[self.current_view].setup()
+
     def __init__(self):
         super().__init__()
         # Music variables
@@ -163,6 +165,19 @@ class GameView(arcade.View):
         # HUD elements
         self.time_elapsed = 0
         self.items_collected = 0
+
+        # Load the torch image sprite
+        self.torch_sprite = arcade.Sprite(
+            ":resources:images/tiles/torch2.png", 0.30)
+
+        # Set the position of the torch sprite where the "Time" text was
+        self.torch_sprite.center_x = SCREEN_WIDTH - 100
+        self.torch_sprite.center_y = SCREEN_HEIGHT - 30
+
+        self.star_sprite = arcade.Sprite(
+            ":resources:images/items/star.png", 0.5)
+        self.star_sprite.center_x = SCREEN_WIDTH - 100
+        self.star_sprite.center_y = SCREEN_HEIGHT - 60
 
         # Create the views (levels)
         self.views = [
@@ -203,6 +218,21 @@ class GameView(arcade.View):
         self.present_music = arcade.load_sound("assets/sounds/present.mp3")
         self.past_music = arcade.load_sound("assets/sounds/passe.mp3")
 
+    def format_time(self, seconds):
+        """ Format the elapsed time into hours, minutes, and seconds without showing zero units. """
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        seconds = int(seconds % 60)
+
+        time_str = ""
+        if hours > 0:
+            time_str += f"{hours}h "
+        if minutes > 0 or hours > 0:
+            time_str += f"{minutes}m "
+        time_str += f"{seconds}s"
+
+        return time_str.strip()
+
     def on_draw(self):
         """ Draw the current view based on the current temporal state. """
         self.clear()
@@ -213,11 +243,26 @@ class GameView(arcade.View):
         # Draw the player
         self.player_sprite.draw()
 
-        # Draw HUD (top right)
-        arcade.draw_text(f"Time: {self.time_elapsed:.1f}s", SCREEN_WIDTH -
-                         150, SCREEN_HEIGHT - 40, arcade.color.WHITE, 20)
-        arcade.draw_text(f"Collected: {self.items_collected}", SCREEN_WIDTH -
-                         150, SCREEN_HEIGHT - 70, arcade.color.WHITE, 20)
+        # Format the time in hours, minutes, and seconds
+        formatted_time = self.format_time(self.time_elapsed)
+
+        # Draw a black transparent background rectangle for time and collected items
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50, 200, 80, arcade.color.BLACK + (150,))
+
+        # Draw the formatted time next to the torch image
+        arcade.draw_text(f"{formatted_time}", SCREEN_WIDTH - 80, SCREEN_HEIGHT - 40,
+                         arcade.color.WHITE, 20, bold=True)
+
+        # Draw the torch sprite (replacing the "Time" text)
+        self.torch_sprite.draw()
+
+        # Draw the star sprite for collected items
+        self.star_sprite.draw()
+
+        # Draw the collected items number next to the star
+        arcade.draw_text(f"{self.items_collected}", SCREEN_WIDTH - 75, SCREEN_HEIGHT - 70,
+                         arcade.color.WHITE, 20, bold=True)
 
     def on_key_press(self, key, modifiers):
         """ Handle key press for moving the player and switching temporal state. """
@@ -396,7 +441,8 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -430,7 +476,8 @@ class MapWinter(BaseMapView):
                 # Si le cœur brisé n'a pas été collecté, on le dessine
                 if self.broken_heart is None:
                     self.broken_heart = arcade.Sprite(
-                        "assets/images/items/coeurBrise.png", 0.30)  # Augmenter la taille avec scale 0.20
+                        # Augmenter la taille avec scale 0.20
+                        "assets/images/items/coeurBrise.png", 0.30)
                     self.broken_heart.center_x = 400
                     self.broken_heart.center_y = 400
                 self.broken_heart.draw()
@@ -457,7 +504,7 @@ class MapWinter(BaseMapView):
                     self.broken_heart_collected = True
                     # Supprimer le cœur brisé une fois collecté
                     self.broken_heart.remove_from_sprite_lists()
-                     # Afficher la vue Game Over
+                    # Afficher la vue Game Over
                     game_over_view = GameOverView()
                     self.game_view.window.show_view(game_over_view)
 
@@ -468,17 +515,18 @@ class MapWinter(BaseMapView):
                     self.normal_heart_collected = True
                     # Supprimer le cœur normal une fois collecté
                     self.normal_heart.remove_from_sprite_lists()
-                    self.game_view.items_collected += 1  # Incrémenter le compteur des objets collectés
-                    
+                    # Incrémenter le compteur des objets collectés
+                    self.game_view.items_collected += 1
+
                     # Redirection vers la carte City
-                    self.game_view.change_view(3)  # L'index 3 correspond à la MapCity
+                    # L'index 3 correspond à la MapCity
+                    self.game_view.change_view(3)
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
-
-
 
 
 class MapForest(BaseMapView):
@@ -488,15 +536,106 @@ class MapForest(BaseMapView):
         super().__init__(game_view)
         self.letter_collected = False
         self.letter = None
+        self.show_dialog = False  # Flag to show the dialog window
+        self.dialog_ui = None  # UIManager for the dialog
         # Variable pour stocker le nom du fichier d'arrière-plan
         self.background_file_name = None
         self.background = None
         self.update_background()
 
+        # Setup the dialog UI manager
+        self.setup_ui()
+
+    def setup_ui(self):
+        """ Setup the UI manager and the dialog box. """
+        self.dialog_ui = arcade.gui.UIManager()
+        self.dialog_ui.enable()
+
+        # Create a box layout to organize the dialog and the button
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        # Create the dialog text
+        self.dialog_text = arcade.gui.UILabel(
+            text="Vous avez écrit une lettre pour Kelly !",
+            text_color=arcade.color.BLACK,
+            font_size=18,
+            width=500,
+            align="center",
+        )
+
+        self.v_box.add(self.dialog_text.with_space_around(bottom=20))
+
+        # Create the "OK" button
+        ok_button = arcade.gui.UIFlatButton(text="OK", width=200)
+        self.v_box.add(ok_button)
+
+        # Attach the button click event
+        ok_button.on_click = self.on_ok_click
+
+        # Add the UIBoxLayout with all widgets to the UIManager
+        self.dialog_ui.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box
+            )
+        )
+
+    def on_draw(self):
+        """ Draw the map and the dialog if applicable. """
+        self.background.draw()
+
+        arcade.draw_text("The Forest", 10, SCREEN_HEIGHT -
+                         60, arcade.color.GREEN, 24)
+
+        if self.game_view.temporal_state == PRESENT:
+            arcade.draw_text("Present: Lush Forest", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+            if not self.letter_collected:
+                if self.letter is None:
+                    self.letter = arcade.Sprite(
+                        "assets/images/items/letter.png", 0.10)
+                    self.letter.center_x = 400
+                    self.letter.center_y = 400
+                self.letter.draw()
+
+        else:
+            arcade.draw_text("Past: Burnt Forest", 10,
+                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
+            spikes = arcade.Sprite(
+                ":resources:images/enemies/saw.png", TILE_SCALING)
+            spikes.center_x = SCREEN_WIDTH // 2
+            spikes.center_y = SCREEN_HEIGHT // 2
+            spikes.draw()
+
+            female_adventurer = arcade.Sprite(
+                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
+            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
+            female_adventurer.center_y = SCREEN_HEIGHT // 2
+            female_adventurer.draw()
+
+        # If the dialog is active, draw the dialog
+        if self.show_dialog:
+            # Draw the rectangle for the dialog background
+            arcade.draw_rectangle_filled(
+                # Beige with transparency
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 450, 200, (245,
+                                                                  245, 220, 250)
+            )
+
+            # Draw the UI elements
+            self.dialog_ui.draw()
+
+    def on_ok_click(self, event):
+        """ Handle click event for the OK button. """
+        self.show_dialog = False  # Hide the dialog
+        self.dialog_ui.disable()  # Disable the UI when dialog is closed
+
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/forest_map_{
+            self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -511,65 +650,27 @@ class MapForest(BaseMapView):
         self.background.center_x = SCREEN_WIDTH // 2
         self.background.center_y = SCREEN_HEIGHT // 2
 
-    def on_draw(self):
-        """ Draw the map. """
-
-        self.background.draw()
-
-        arcade.draw_text("The Forest", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
-
-        # Dessiner des objets en fonction de l'état temporel
-
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Lush Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
-            if not self.letter_collected:
-                # Si la lettre n'a pas été collectée, on la dessine
-                if self.letter is None:
-                    self.letter = arcade.Sprite(
-                        "assets/images/items/letter.png", 0.10)
-                    self.letter.center_x = 400
-                    self.letter.center_y = 400
-                self.letter.draw()
-
-        else:
-            arcade.draw_text("Past: Burnt Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
-             # Ajouter des objets dans le passé, par exemple des pics
-            spikes = arcade.Sprite(
-                ":resources:images/enemies/saw.png", TILE_SCALING)
-            spikes.center_x = SCREEN_WIDTH // 2
-            spikes.center_y = SCREEN_HEIGHT // 2
-            spikes.draw()
-
-            # Ajouter un personnage féminin à côté des pics
-            female_adventurer = arcade.Sprite(
-                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
-            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
-            female_adventurer.center_y = SCREEN_HEIGHT // 2
-            female_adventurer.draw()
-
     def on_update(self, delta_time):
-        """Met à jour l'arrière-plan si l'état temporel change."""
-         # Vérifier la collecte de la lettre dans le présent
+        """ Update the map and handle letter collection. """
         if self.game_view.temporal_state == PRESENT and not self.letter_collected:
             if self.letter and self.game_view.player_sprite:
                 if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
                     self.letter_collected = True
-                    # Supprimer la lettre une fois collectée
                     self.letter.remove_from_sprite_lists()
                     self.game_view.items_collected += 1
+                    self.show_dialog = True  # Show the dialog when the letter is collected
+                    self.dialog_ui.enable()  # Enable the UI for the dialog
 
-        # Vérifier les collisions avec les spikes dans le passé
-        if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
-            if abs(self.game_view.player_sprite.center_x - SCREEN_WIDTH // 2) < 50 and abs(self.game_view.player_sprite.center_y - SCREEN_HEIGHT // 2) < 50:
-                # Redémarrer le jeu en cas de collision avec les spikes
-                self.game_view.setup()
-        # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
+        # Update the background if the temporal state changes
+        expected_background_file = f"assets/images/backgrounds/forest_map_{
+            self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        """ Handle mouse clicks to close the dialog window. """
+        if self.show_dialog:
+            self.dialog_ui.on_mouse_press(x, y, button, modifiers)
 
 
 class MapCITY(BaseMapView):
@@ -587,7 +688,8 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -604,9 +706,11 @@ class MapCITY(BaseMapView):
 
     def add_flames(self):
         """Add flame sprites to the city map in the past."""
-        flame_positions = [(425, 350), (975, 550), (1200, 550), (825, 115)]  # Example positions
+        flame_positions = [(425, 350), (975, 550), (1200, 550),
+                           (825, 115)]  # Example positions
         for pos in flame_positions:
-            flame = arcade.Sprite("assets/images/flame.png", 0.2)  # Fixed path to flame sprite
+            # Fixed path to flame sprite
+            flame = arcade.Sprite("assets/images/flame.png", 0.2)
             flame.center_x, flame.center_y = pos
             self.flames.append(flame)  # This now adds to the SpriteList
 
@@ -628,20 +732,24 @@ class MapCITY(BaseMapView):
 
     def on_update(self, delta_time):
         """Met à jour l'arrière-plan si l'état temporel change."""
-        
+
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
         # Vérifier les collisions avec les flammes
         if self.game_view.temporal_state == PAST:  # Seulement dans le passé
-            flames_hit_list = arcade.check_for_collision_with_list(self.game_view.player_sprite, self.flames)
+            flames_hit_list = arcade.check_for_collision_with_list(
+                self.game_view.player_sprite, self.flames)
 
             if flames_hit_list:
                 # Si une collision est détectée, revenir à la première map
                 game_over = GameOverView()
-                self.game_view.window.show_view(game_over)  # Use game_view.window
+                self.game_view.window.show_view(
+                    game_over)  # Use game_view.window
+
 
 class GameOverView(arcade.View):
     """ View to show when the game is over """
