@@ -460,8 +460,7 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -542,8 +541,7 @@ class MapWinter(BaseMapView):
                     self.game_view.change_view(3)
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -653,8 +651,7 @@ class MapForest(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -681,8 +678,7 @@ class MapForest(BaseMapView):
                     self.dialog_ui.enable()  # Enable the UI for the dialog
 
         # Update the background if the temporal state changes
-        expected_background_file = f"assets/images/backgrounds/forest_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -707,8 +703,7 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -753,8 +748,7 @@ class MapCITY(BaseMapView):
         """Met à jour l'arrière-plan si l'état temporel change."""
 
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -769,6 +763,81 @@ class MapCITY(BaseMapView):
                 self.game_view.window.show_view(
                     game_over)  # Use game_view.window
 
+class Arrivee(BaseMapView):
+    """ Arrival view: displays 'You Win' message and a restart button """
+
+    def __init__(self, game_view):
+        super().__init__(game_view)
+
+        # Load the background image
+        self.background = arcade.Sprite("assets/images/backgrounds/arrivee.png")
+
+        # Adjust the scale of the background to fit the screen
+        image_width = self.background.width
+        image_height = self.background.height
+        self.background.scale = max(SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+        self.background.center_x = SCREEN_WIDTH // 2
+        self.background.center_y = SCREEN_HEIGHT // 2
+
+        # Initialize the UI manager and vertical box layout for the button
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        # Add v_box to the manager
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box
+            )
+        )
+
+        # Create and add the restart button
+        self.create_restart_button()
+
+    def create_restart_button(self):
+        """ Create the restart button """
+        restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
+        restart_button.on_click = self.on_restart_button_click
+        self.v_box.add(restart_button)
+
+    def on_restart_button_click(self, event):
+        """ Handle the restart button click """
+        # Restart the game and go to the Introduction view
+        game_view = GameView()  # Create a new instance of GameView
+        game_view.setup()  # Set up the game state
+        game_view.current_view = 0  # Ensure the introduction view is the first view
+        self.game_view.window.show_view(game_view)  # Show the GameView with Introduction
+
+    def on_draw(self):
+        """ Draw the arrival scene with the 'You Win' message and restart button """
+        self.clear()
+
+        # Draw the background
+        self.background.draw()
+
+        # Draw the "You Win" message
+        arcade.draw_text(
+            "You Win!",
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 + 150,  # Position the text above the button
+            arcade.color.WHITE,
+            50,
+            anchor_x="center",
+        )
+
+        # Draw the UI manager (this draws the restart button)
+        self.manager.draw()
+
+    def on_show_view(self):
+        """ This is called when we switch to this view """
+        # Make sure the mouse cursor is visible
+        self.window.set_mouse_visible(True)
+
+    def on_hide_view(self):
+        """ Disable the manager when switching to another view """
+        self.manager.disable()
 
 class GameOverView(arcade.View):
     """ View to show when the game is over """
