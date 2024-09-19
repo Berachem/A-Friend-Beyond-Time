@@ -734,8 +734,34 @@ class MapCITY(BaseMapView):
         """ Draw the map. """
         self.background.draw()
 
-        arcade.draw_text("The City", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        rectangle_height = 200  # Increased to fit all text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+        )
+
+        # Draw the "At Killy's home" message centered inside the rectangle
+        arcade.draw_text("City Mission ", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+                        arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+
+        # Draw each part of the story, ensuring long lines are wrapped within the screen width
+        arcade.draw_text(
+            "Reconnect with your friend by rejoining the weekly drawing class you both loved.",
+            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "You missed the chance before due to your car breaking down.",
+            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+        arcade.draw_text(
+            "But now, with a second chance, take action to rebuild the friendship through shared hobbies.",
+            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+        
+        
         # Dessiner des objets en fonction de l'état temporel
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Busy Streets", 10,
