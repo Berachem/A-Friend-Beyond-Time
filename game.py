@@ -474,8 +474,7 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -583,8 +582,7 @@ class MapWinter(BaseMapView):
                     self.game_view.change_view(3)
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -788,10 +786,26 @@ class MapForest(BaseMapView):
             self.player_sprite.change_x = 0
 
     def on_update(self, delta_time):
-        pass
+        """ Update logic for chasing dogs and checking for game over condition. """
+        # Mettre à jour la logique de poursuite des chiens
         self.chase_by_dogs()
         self.chase_by_dog_food()
+        
+        # Mettre à jour le moteur de physique
         self.physics_engine.update()
+        if self.mail_sprite.visible:
+        #     # Passez à la carte suivante
+            self.game_view.items_collected += 1
+            self.game_view.change_view((self.game_view.current_view + 1) % len(self.game_view.views))
+        # Vérifier la collision entre le joueur et les chiens (chiens en colère)
+        if self.tense == Tense.PRESENT and self.feeded_dogs < 4:  # S'applique uniquement dans le présent avant de nourrir les chiens
+            angry_dogs = self.scene["angry-dogs"]
+            for dog in angry_dogs:
+                # Si un chien entre en collision avec le joueur, déclencher le game over
+                if arcade.check_for_collision(self.player_sprite, dog):
+                    game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+                    self.game_view.window.show_view(game_over_view)  # Affiche la vue "Game Over"
+                    break
 
 
 class MapCITY(BaseMapView):
@@ -809,8 +823,7 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -881,8 +894,7 @@ class MapCITY(BaseMapView):
         """Met à jour l'arrière-plan si l'état temporel change."""
 
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
