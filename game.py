@@ -1,5 +1,15 @@
 import arcade
 import arcade.gui
+import math
+from tense import Tense
+
+# Constants specific to the forest map
+TILE_SCALING = 1.1
+TILE_SIZE = 16
+COLLECTING_DISTANCE = (TILE_SIZE * TILE_SCALING) * 4
+CHASING_DISTANCE = TILE_SIZE * TILE_SCALING * 5
+PLAYER_SPEED = 5
+CHASING_SPEED = 5
 
 # --- Constants ---
 SCREEN_WIDTH = 1440
@@ -11,8 +21,8 @@ SCREEN_TITLE = "Lost in Time, Found in Friendship"
 PAST = "past"
 PRESENT = "present"
 
-TILE_SCALING = 0.5
-CHARACTER_SCALING = TILE_SCALING * 2
+# TILE_SCALING = 0.5
+CHARACTER_SCALING = TILE_SCALING * .7
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
@@ -157,13 +167,20 @@ class GameView(arcade.View):
         self.time_elapsed = 0
         self.items_collected = 0
 
+        self.setup()
+
         # Create the views (levels)
         self.views = [
             Introduction(self),
-            MapForest(self),
+            MapForest(self, self.player_sprite),
             MapWinter(self),
             MapCITY(self)
         ]
+
+    def update_walls_in_engine(self, walls):
+        self.physics_engine = arcade.PhysicsEngineSimple(
+            self.player_sprite, walls=walls
+        )
 
     def change_view(self, new_view_index):
         """
@@ -216,6 +233,8 @@ class GameView(arcade.View):
         elif key == arcade.key.DOWN:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
 
+        self.views[self.current_view].on_key_press(key, modifiers)
+
     def on_key_release(self, key, modifiers):
         """ Handle key release for player movement. """
         if key in [arcade.key.RIGHT, arcade.key.LEFT]:
@@ -234,6 +253,7 @@ class GameView(arcade.View):
             # Player reached the right edge, go to the next map
             self.current_view = (self.current_view + 1) % len(self.views)
             self.player_sprite.center_x = PLAYER_BORDER_PADDING  # Reset player to left edge
+            self.physics_engine = self.views[self.current_view].physics_engine
         elif self.player_sprite.center_x < PLAYER_BORDER_PADDING:
             # Prevent transition from map 1 to map 4 by going left
             if self.current_view == 0:
@@ -250,6 +270,8 @@ class BaseMapView:
     def __init__(self, game_view):
         self.game_view = game_view  # Reference to the GameView
         self.player_sprite = game_view.player_sprite
+        self.physics_engine = None
+        self.walls = arcade.SpriteList()
 
     def on_draw(self):
         pass
@@ -450,94 +472,176 @@ class MapWinter(BaseMapView):
 
 
 class MapForest(BaseMapView):
-    """ Third map view """
+  def __init__(self, game_view, game_player_sprite):
+    super().__init__(game_view)
+    self.game_view = game_view
+    self.player_sprite = game_player_sprite
+    print("here goes player", game_player_sprite)
+    self.tile_map = None
+    self.scene = None
+    self.physics_engine = None
+    self.mail_sprite = None
+    self.wood = 0
+    self.is_bridge_constructed = False
+    self.feeded_dogs = 0
+    self.tense = Tense.PRESENT
+    self.setup()
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
-        self.letter_collected = False
-        self.letter = None
-        # Variable pour stocker le nom du fichier d'arrière-plan
-        self.background_file_name = None
-        self.background = None
-        self.update_background()
+  def setup(self):
+    map_name = "assets/maps/forest/test-map.json"
+    self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
+    self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-    def update_background(self):
-        """Update background image based on temporal state."""
-        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
-        self.background = arcade.Sprite(self.background_file_name)
+    mail_source = "assets/maps/raw/mail.png"
+    self.mail_sprite = arcade.Sprite(mail_source, .3)
+    self.mail_sprite.center_x = 75 * TILE_SIZE
+    self.mail_sprite.center_y = 35 * TILE_SIZE
+    self.scene.add_sprite("mail", self.mail_sprite)
+    self.mail_sprite.visible = False
 
-        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
-        image_width = self.background.width
-        image_height = self.background.height
+    # Setup physics engine
+    self.update_walls_in_engine([self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
 
-        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
-        self.background.scale = max(
-            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+  def restart(self):
+    self.setup()
 
-        # Positionner l'arrière-plan au centre de l'écran
-        self.background.center_x = SCREEN_WIDTH // 2
-        self.background.center_y = SCREEN_HEIGHT // 2
 
-    def on_draw(self):
-        """ Draw the map. """
+  def update_walls_in_engine(self, walls):
+    self.physics_engine = arcade.PhysicsEngineSimple(
+      self.player_sprite, walls=walls
+    )
 
-        self.background.draw()
+  def near_sprites_in_list_aux(self, sprite_list_1, sprite_list_2, action, radius):
+    for sprite1 in sprite_list_1:
+        for sprite2 in sprite_list_2:
+          distance = math.sqrt((sprite1.center_x - sprite2.center_x) ** 2 + 
+                              (sprite1.center_y - sprite2.center_y) ** 2)
+          if distance < radius:
+            action(sprite1)
+            break
 
-        arcade.draw_text("The Forest", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+  def near_sprites_in_list(self, sprite_list, action):
+    self.near_sprites_in_list_aux(sprite_list, [self.player_sprite], action, COLLECTING_DISTANCE)
 
-        # Dessiner des objets en fonction de l'état temporel
+  def collect_wood(self, collectable):
+    self.scene["collectables"].remove(collectable)
+    self.wood += 1
 
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Lush Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
-            if not self.letter_collected:
-                # Si la lettre n'a pas été collectée, on la dessine
-                if self.letter is None:
-                    self.letter = arcade.Sprite(
-                        "assets/images/items/letter.png", 0.10)
-                    self.letter.center_x = 400
-                    self.letter.center_y = 400
-                self.letter.draw()
+  def display_invisibles(self, invisibles):
+    if self.wood > 3 and self.tense == Tense.PAST:
+      self.scene["invisibles"].visible = True
+      self.scene["dog-food"].visible = True
+      self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      self.is_bridge_constructed = True
 
-        else:
-            arcade.draw_text("Past: Burnt Forest", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 20)
-             # Ajouter des objets dans le passé, par exemple des pics
-            spikes = arcade.Sprite(
-                ":resources:images/enemies/saw.png", TILE_SCALING)
-            spikes.center_x = SCREEN_WIDTH // 2
-            spikes.center_y = SCREEN_HEIGHT // 2
-            spikes.draw()
+  def chase_player(self, sprite, speed):
+    x_diff = self.player_sprite.center_x - sprite.center_x
+    y_diff = self.player_sprite.center_y - sprite.center_y
+    distance = math.sqrt(x_diff ** 2 + y_diff ** 2)
+    if distance < 0.01:
+      return  # Avoid division by zero
+    sprite.center_x += (x_diff / distance) * speed
+    sprite.center_y += (y_diff / distance) * speed
 
-            # Ajouter un personnage féminin à côté des pics
-            female_adventurer = arcade.Sprite(
-                ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png", CHARACTER_SCALING)
-            female_adventurer.center_x = SCREEN_WIDTH // 2 + 200
-            female_adventurer.center_y = SCREEN_HEIGHT // 2
-            female_adventurer.draw()
+  def chase_by_dogs(self):
+    if self.tense == Tense.PRESENT and self.feeded_dogs < 4:
+      self.scene["angry-dogs"].visible = True
+      self.scene["friendly-dogs"].visible = False
+      for dog in self.scene["angry-dogs"]:
+        distance = math.sqrt((dog.center_x - self.player_sprite.center_x) ** 2 + 
+                            (dog.center_y - self.player_sprite.center_y) ** 2)
+        if distance < CHASING_DISTANCE:  # Check if the dog is near the player
+          self.chase_player(dog, CHASING_SPEED)  # Make the dog chase the player
 
-    def on_update(self, delta_time):
-        """Met à jour l'arrière-plan si l'état temporel change."""
-         # Vérifier la collecte de la lettre dans le présent
-        if self.game_view.temporal_state == PRESENT and not self.letter_collected:
-            if self.letter and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.letter.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.letter.center_y) < 50:
-                    self.letter_collected = True
-                    # Supprimer la lettre une fois collectée
-                    self.letter.remove_from_sprite_lists()
-                    self.game_view.items_collected += 1
+  def chase_by_dog_food(self):
+    for food in self.scene["dog-food"]:
+      distance = math.sqrt((food.center_x - self.player_sprite.center_x) ** 2 + 
+                          (food.center_y - self.player_sprite.center_y) ** 2)
+      if distance < TILE_SIZE * TILE_SCALING * 2:
+        self.chase_player(food, PLAYER_SPEED * 2)
 
-        # Vérifier les collisions avec les spikes dans le passé
-        if self.game_view.temporal_state == PAST and self.game_view.player_sprite:
-            if abs(self.game_view.player_sprite.center_x - SCREEN_WIDTH // 2) < 50 and abs(self.game_view.player_sprite.center_y - SCREEN_HEIGHT // 2) < 50:
-                # Redémarrer le jeu en cas de collision avec les spikes
-                self.game_view.setup()
-        # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/forest_map_{self.game_view.temporal_state}.png"
-        if self.background_file_name != expected_background_file:
-            self.update_background()
+#   def is_player_eaten_by_dog(self):
+#      if self.tense == Tense.PRESENT and self.feeded_dogs < 4:
+        
+
+  def feed_dog(self, dog_food_sprite):
+    print("dogs are feeded")
+    self.feeded_dogs += 1
+    self.scene["dog-food"].remove(dog_food_sprite)
+    if(self.feeded_dogs >= 4):
+      self.mail_sprite.visible = True
+
+  def switch_tense(self):
+    if self.tense == Tense.PRESENT:
+      if not self.is_bridge_constructed : 
+        self.scene["invisibles"].visible = False
+        self.scene["bridge-blocks"].visible = True
+        self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"], self.scene["bridge-blocks"]])
+      else:
+        self.scene["invisibles"].visible = True
+        self.scene["bridge-blocks"].visible = False
+        self.update_walls_in_engine([self.scene["young-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      
+      self.scene["angry-dogs"].visible = False
+      self.scene["friendly-dogs"].visible = False
+      self.scene["young-dogs"].visible = True
+      self.scene["dog-food"].visible = True if self.is_bridge_constructed else False
+      
+
+      self.tense = Tense.PAST
+
+    else:
+      self.scene["invisibles"].visible = True
+      self.scene["bridge-blocks"].visible = False
+      
+      if self.feeded_dogs >= 4:
+        self.scene["angry-dogs"].visible = False
+        self.scene["friendly-dogs"].visible = True
+        self.update_walls_in_engine([self.scene["friendly-dogs"], self.scene["collectables"], self.scene["blocks"]])
+      else:
+        self.scene["angry-dogs"].visible = True
+        self.scene["friendly-dogs"].visible = False
+        self.update_walls_in_engine([self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
+
+      self.scene["young-dogs"].visible = False
+      self.scene["dog-food"].visible = False
+
+      self.tense = Tense.PRESENT
+
+  def on_draw(self):
+    # pass
+    arcade.start_render()
+    self.scene.draw()
+    if self.mail_sprite.visible == True:
+      arcade.draw_text("Congrats ! you kept your promise.", TILE_SIZE*TILE_SCALING*53, TILE_SIZE*TILE_SCALING*35, arcade.color.BLACK, 15)
+
+  def on_key_press(self, key, modifiers):
+    if key == arcade.key.UP:
+      self.player_sprite.change_y = PLAYER_SPEED
+    elif key == arcade.key.DOWN:
+      self.player_sprite.change_y = -PLAYER_SPEED
+    elif key == arcade.key.LEFT:
+      self.player_sprite.change_x = -PLAYER_SPEED
+    elif key == arcade.key.RIGHT:
+      self.player_sprite.change_x = PLAYER_SPEED
+    elif key == arcade.key.ENTER:
+      self.near_sprites_in_list(self.scene["invisibles"], self.display_invisibles)
+      self.near_sprites_in_list(self.scene["collectables"], self.collect_wood)
+      self.near_sprites_in_list_aux(self.scene["dog-food"], self.scene["young-dogs"], self.feed_dog, COLLECTING_DISTANCE*3)
+    elif key == arcade.key.SPACE:
+      self.switch_tense()
+
+  def on_key_release(self, key, modifiers):
+    if key == arcade.key.UP or key == arcade.key.DOWN:
+      self.player_sprite.change_y = 0
+    elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
+      self.player_sprite.change_x = 0
+
+  def on_update(self, delta_time):
+    pass
+    self.chase_by_dogs()
+    self.chase_by_dog_food()
+    self.physics_engine.update()
 
 
 class MapCITY(BaseMapView):
@@ -688,7 +792,7 @@ def main():
     """ Main function """
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     game_view = GameView()
-    game_view.setup()
+    # game_view.setup()
     window.show_view(game_view)
     arcade.run()
 
