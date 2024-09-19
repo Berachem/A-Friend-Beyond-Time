@@ -481,8 +481,7 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -562,6 +561,18 @@ class MapWinter(BaseMapView):
                     self.normal_heart.center_y = 350
                 self.normal_heart.draw()
 
+    def on_key_press(self, key, modifiers):
+        """ Disable key press during the introduction """
+        pass
+
+    def on_key_release(self, key, modifiers):
+        """ Disable key release during the introduction """
+        pass
+
+    def on_hide_view(self):
+        """ Disable the manager when switching to another view """
+        self.manager.disable()
+
     def on_update(self, delta_time):
         """ Handle updates such as collecting hearts and checking collisions. """
         # Vérifier la collecte du cœur brisé dans le présent
@@ -590,8 +601,7 @@ class MapWinter(BaseMapView):
                     self.game_view.change_view(3)
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -874,8 +884,7 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -946,8 +955,7 @@ class MapCITY(BaseMapView):
         """Met à jour l'arrière-plan si l'état temporel change."""
 
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{
-            self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -961,6 +969,18 @@ class MapCITY(BaseMapView):
                 game_over = GameOverView()
                 self.game_view.window.show_view(
                     game_over)  # Use game_view.window
+
+    def on_key_press(self, key, modifiers):
+        """ Disable key press during the introduction """
+        pass
+
+    def on_key_release(self, key, modifiers):
+        """ Disable key release during the introduction """
+        pass
+
+    def on_hide_view(self):
+        """ Disable the manager when switching to another view """
+        self.manager.disable()
 
 
 class Arrivee(BaseMapView):
