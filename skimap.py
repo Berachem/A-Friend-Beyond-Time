@@ -49,9 +49,11 @@ class MapWinter:
             break
 
   def check_player_monster_collision(self):
-    player_sprite = self.player_sprite
-    monsters = self.scene["past-monsters"]
-    if arcade.check_for_collision_with_list(player_sprite, monsters):
+    past_monsters = self.scene["past-monsters"]
+    present_monsters = self.scene["present-monsters"]
+    past_collisions = arcade.check_for_collision_with_list(self.player_sprite, past_monsters)
+    present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
+    if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
       print("Game Over")
 
   def move_monsters(self, n, m):
@@ -146,6 +148,7 @@ class MapWinter:
       else:
         self.scene["past-monsters"].visible = False
         self.scene["present-monsters"].visible = True
+      
       self.tense = Tense.PRESENT
       
 
