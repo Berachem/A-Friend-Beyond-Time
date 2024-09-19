@@ -2,6 +2,9 @@ import arcade
 import arcade.gui
 from enum import Enum
 import math
+from skimap import MapWinter
+import random
+
 # Constants specific to the forest map
 TILE_SCALING = 1.1
 TILE_SIZE = 16
@@ -32,6 +35,8 @@ LEFT_FACING = 1
 PLAYER_START_X = 100
 PLAYER_START_Y = 100
 PLAYER_BORDER_PADDING = 10  # Padding for detecting map change
+HORIZONTAL_TILES = 45
+VERTICAL_TILES = 25
 
 
 def load_texture_pair(filename):
@@ -192,7 +197,7 @@ class GameView(arcade.View):
         self.views = [
             Introduction(self),
             MapForest(self, self.player_sprite),
-            MapWinter(self),
+            MapWinter(self,self.player_sprite),
             MapCITY(self),
             Arrivee(self)
 
@@ -463,147 +468,172 @@ class Introduction(BaseMapView):
         self.manager.disable()
 
 
-class MapWinter(BaseMapView):
-    """ Second map view """
+# class MapWinter(BaseMapView):
+#     def __init__(self, game_view, game_player_sprite):
+#         self.game_view = game_view
+#         self.player_sprite = game_player_sprite
+#         self.tile_map = None
+#         self.scene = None
+#         self.physics_engine = None
+#         self.monster_sprite = None
+#         self.collected_flags = 0
+#         self.tense = Tense.PRESENT    
+#         self.setup()
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
-        self.broken_heart_collected = False
-        self.normal_heart_collected = False
-        self.broken_heart = None
-        self.normal_heart = None
+#     def setup(self):
+#         map_name = "assets/maps/ski/ski.json"
+#         self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
+#         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-        # Variable pour stocker le nom du fichier d'arrière-plan
-        self.background_file_name = None
-        self.background = None
-        self.update_background()
+#         # Setup physics engine
+#         self.update_walls_in_engine([self.scene["decoration"]])
 
-    def update_background(self):
-        """Update background image based on temporal state."""
-        # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
-        self.background = arcade.Sprite(self.background_file_name)
+#     def update_walls_in_engine(self, walls):
+#         self.physics_engine = arcade.PhysicsEngineSimple(
+#         self.player_sprite, walls=walls
+#         )
 
-        # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
-        image_width = self.background.width
-        image_height = self.background.height
+#     def near_sprites_in_list_aux(self, sprite_list_1, sprite_list_2, action, radius):
+#         for sprite1 in sprite_list_1:
+#             for sprite2 in sprite_list_2:
+#                 distance = math.sqrt((sprite1.center_x - sprite2.center_x) ** 2 + 
+#                                 (sprite1.center_y - sprite2.center_y) ** 2)
+#             if distance < radius:
+#                 action(sprite1)
+#                 break
 
-        # Mettre à l'échelle pour correspondre à la taille de la fenêtre
-        self.background.scale = max(
-            SCREEN_WIDTH / image_width, SCREEN_HEIGHT / image_height)
+#     def check_player_monster_collision(self):
+#         past_monsters = self.scene["past-monsters"]
+#         present_monsters = self.scene["present-monsters"]
+#         past_collisions = arcade.check_for_collision_with_list(self.player_sprite, past_monsters)
+#         present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
+#         if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
+#             print("Game Over")
 
-        # Positionner l'arrière-plan au centre de l'écran
-        self.background.center_x = SCREEN_WIDTH // 2
-        self.background.center_y = SCREEN_HEIGHT // 2
+#     def move_monsters(self, n, m):
+#         monsters = self.scene["past-monsters"]
+#         walls = self.scene["decoration"]
+#         map_width = TILE_SCALING * HORIZONTAL_TILES * 16
+#         map_height = TILE_SCALING * VERTICAL_TILES * 16
+        
+#         for monster in monsters:
+#         # If the monster doesn't have an initial position, store it
+#             if not hasattr(monster, 'initial_x'):
+#                 monster.initial_x = monster.center_x
+#                 monster.initial_y = monster.center_y
 
-    def on_draw(self):
-        """ Draw the map. """
+#         # If the monster doesn't have a direction, choose one
+#         if not hasattr(monster, 'direction'):
+#             monster.direction = random.choice(['up', 'down', 'left', 'right'])
+        
+#         old_x = monster.center_x
+#         old_y = monster.center_y
 
-        # Dessiner l'arrière-plan
-        self.background.draw()
+#         # Move monster in the current direction
+#         if monster.direction == 'up':
+#             monster.center_y += n
+#         elif monster.direction == 'down':
+#             monster.center_y -= n
+#         elif monster.direction == 'left':
+#             monster.center_x -= n
+#         elif monster.direction == 'right':
+#             monster.center_x += n
 
-        # arcade.draw_text("The Winter Land", 10,
-        #                  SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
-        rectangle_height = 200  # Increased to fit all text
-        arcade.draw_rectangle_filled(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT -
-            150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
-        )
+#         # Check for collisions with walls, boundaries, or if it's out of the allowed radius
+#         distance_from_start = math.sqrt((monster.center_x - monster.initial_x) ** 2 +
+#                                         (monster.center_y - monster.initial_y) ** 2)
 
-        # Draw the "At Killy's home" message centered inside the rectangle
-        arcade.draw_text("Ski Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
-                         arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+#         if (monster.center_x < 0 or monster.center_x > map_width or
+#             monster.center_y < 0 or monster.center_y > map_height or
+#             arcade.check_for_collision_with_list(monster, walls) or
+#             distance_from_start > m):
+#             # Revert movement if there is a collision, out of bounds, or exceeds radius
+#             monster.center_x = old_x
+#             monster.center_y = old_y
+#             # Pick a new random direction
+#             monster.direction = random.choice(['up', 'down', 'left', 'right'])
 
-        # Draw each part of the story, ensuring long lines are wrapped within the screen width
-        arcade.draw_text(
-            "Overcome your fear of monsters and redeem yourself by collecting the red flags with your friends.",
-            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
+#     def check_flag_collisions(self):
+#         flags = self.scene["flags"]
+#         for flag in flags:
+#             if arcade.check_for_collision(self.player_sprite, flag):
+#                 self.collected_flags += 1
+#                 flags.remove(flag)  # Remove the flag on collision with player
 
-        arcade.draw_text(
-            "Your past hesitation caused a rift, but now, determined to make things right,",
-            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
+#     def display_invisibles(self, invisibles):
+#         if self.nbFlag > 3 and self.tense == Tense.PRESENT:
+#             self.scene["past-monsters"].visible = False
 
-        arcade.draw_text(
-            "you must confront your fears and restore the bond by succeeding together.",
-            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
-        # Dessiner des objets en fonction de l'état temporel
+#     def chase_player(self, sprite, speed):
+#         x_diff = self.player_sprite.center_x - sprite.center_x
+#         y_diff = self.player_sprite.center_y - sprite.center_y
+#         distance = math.sqrt(x_diff ** 2 + y_diff ** 2)
+#         if distance < 0.01:
+#             return  # Avoid division by zero
+#         sprite.center_x += (x_diff / distance) * speed
+#         sprite.center_y += (y_diff / distance) * speed
 
-        if self.game_view.temporal_state == PRESENT:
-            arcade.draw_text("Present: Snowy Landscape", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
+#     def chase_by_monsters(self):
+#         if self.tense == Tense.PAST and self.chase_by_monsters < 4:
+#             self.scene["past-monsters"].visible = True
+#             for monster in self.scene["past-monsters"]:
+#                 distance = math.sqrt((monster.center_x - self.player_sprite.center_x) ** 2 + 
+#                                     (monster.center_y - self.player_sprite.center_y) ** 2)
+#                 if distance < CHASING_DISTANCE:  # Check if the dog is near the player
+#                     self.chase_player(monster, CHASING_SPEED)  # Make the dog chase the player
 
-            if not self.broken_heart_collected:
-                # Si le cœur brisé n'a pas été collecté, on le dessine
-                if self.broken_heart is None:
-                    self.broken_heart = arcade.Sprite(
-                        # Augmenter la taille avec scale 0.20
-                        "assets/images/items/coeurBrise.png", 0.30)
-                    self.broken_heart.center_x = 400
-                    self.broken_heart.center_y = 400
-                self.broken_heart.draw()
+#     def take_flag(self, dog_food_sprite):
+#         print("Take flag !")
+#         self.nbFlag += 1
+#         if(self.nbFlag >= 4):
+#             self.tense == Tense.PRESENT
 
-        else:
-            arcade.draw_text("Past: Frozen Wasteland", 10,
-                             SCREEN_HEIGHT - 100, arcade.color.GRAY, 30)
+#     def switch_tense(self):
+#         print(self.tense)
+#         if self.tense == Tense.PRESENT:
+#             self.scene["past-monsters"].visible = True
+#             self.scene["present-monsters"].visible = False
+#             self.tense = Tense.PAST
+#         else:
+#             if self.collected_flags > 3:
+#                 self.scene["past-monsters"].visible = False
+#                 self.scene["present-monsters"].visible = False
+#                 print("You won !")
+#             else:
+#                 self.scene["past-monsters"].visible = False
+#                 self.scene["present-monsters"].visible = True
+        
+#         self.tense = Tense.PRESENT
+        
 
-            if not self.normal_heart_collected:
-                # Si le cœur normal n'a pas été collecté, on le dessine
-                if self.normal_heart is None:
-                    self.normal_heart = arcade.Sprite(
-                        "assets/images/items/coeur.png", 0.30)  # Augmenter la taille avec scale 0.20
-                    self.normal_heart.center_x = 1150
-                    self.normal_heart.center_y = 350
-                self.normal_heart.draw()
+#     def on_draw(self):
+#         self.scene.draw()
 
-    def on_key_press(self, key, modifiers):
-        """ Disable key press during the introduction """
-        pass
+#     def on_key_press(self, key, modifiers):
+#             if key == arcade.key.UP:
+#                 self.player_sprite.change_y = PLAYER_SPEED
+#             elif key == arcade.key.DOWN:
+#                 self.player_sprite.change_y = -PLAYER_SPEED
+#             elif key == arcade.key.LEFT:
+#                 self.player_sprite.change_x = -PLAYER_SPEED
+#             elif key == arcade.key.RIGHT:
+#                 self.player_sprite.change_x = PLAYER_SPEED
+#             elif key == arcade.key.ENTER:
+#                 self.near_sprites_in_list(self.scene["redFlags"], self.nbFlag)
+#             elif key == arcade.key.SPACE:
+#                 self.switch_tense()
 
-    def on_key_release(self, key, modifiers):
-        """ Disable key release during the introduction """
-        pass
+#     def on_key_release(self, key, modifiers):
+#         if key == arcade.key.UP or key == arcade.key.DOWN:
+#             self.player_sprite.change_y = 0
+#         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
+#             self.player_sprite.change_x = 0
 
-    def on_hide_view(self):
-        """ Disable the manager when switching to another view """
-        self.manager.disable()
-
-    def on_update(self, delta_time):
-        """ Handle updates such as collecting hearts and checking collisions. """
-        # Vérifier la collecte du cœur brisé dans le présent
-        if self.game_view.temporal_state == PRESENT and not self.broken_heart_collected:
-            if self.broken_heart and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.broken_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.broken_heart.center_y) < 50:
-                    self.broken_heart_collected = True
-                    # Supprimer le cœur brisé une fois collecté
-                    self.broken_heart.remove_from_sprite_lists()
-                    # Afficher la vue Game Over
-                    game_over_view = GameOverView()
-                    self.game_view.window.show_view(game_over_view)
-
-        # Vérifier la collecte du cœur normal dans le passé
-        if self.game_view.temporal_state == PAST and not self.normal_heart_collected:
-            if self.normal_heart and self.game_view.player_sprite:
-                if abs(self.game_view.player_sprite.center_x - self.normal_heart.center_x) < 50 and abs(self.game_view.player_sprite.center_y - self.normal_heart.center_y) < 50:
-                    self.normal_heart_collected = True
-                    # Supprimer le cœur normal une fois collecté
-                    self.normal_heart.remove_from_sprite_lists()
-                    # Incrémenter le compteur des objets collectés
-                    self.game_view.items_collected += 1
-
-                    # Redirection vers la carte City
-                    # L'index 3 correspond à la MapCity
-                    self.game_view.change_view(3)
-
-        # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
-        if self.background_file_name != expected_background_file:
-            self.update_background()
+#     def on_update(self, delta_time):
+#         self.move_monsters(3, TILE_SCALING * 16 * 10)
+#         self.check_player_monster_collision()
+#         self.check_flag_collisions()
+#         self.physics_engine.update()
 
 
 class MapForest(BaseMapView):
