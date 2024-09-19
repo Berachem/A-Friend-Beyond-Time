@@ -483,9 +483,35 @@ class MapWinter(BaseMapView):
         # Dessiner l'arrière-plan
         self.background.draw()
 
-        arcade.draw_text("The Winter Land", 10,
-                         SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        # arcade.draw_text("The Winter Land", 10,
+        #                  SCREEN_HEIGHT - 60, arcade.color.GREEN, 24)
+        rectangle_height = 200  # Increased to fit all text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+        )
 
+        # Draw the "At Killy's home" message centered inside the rectangle
+        arcade.draw_text("Ski Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+                        arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+
+        # Draw each part of the story, ensuring long lines are wrapped within the screen width
+        arcade.draw_text(
+            "Overcome your fear of monsters and redeem yourself by collecting the red flags with your friends.",
+            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "Your past hesitation caused a rift, but now, determined to make things right,",
+            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "you must confront your fears and restore the bond by succeeding together.",
+            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
         # Dessiner des objets en fonction de l'état temporel
 
         if self.game_view.temporal_state == PRESENT:
@@ -604,9 +630,34 @@ class MapForest(BaseMapView):
         """ Draw the map and the dialog if applicable. """
         self.background.draw()
 
-        arcade.draw_text("The Forest", 10, SCREEN_HEIGHT -
-                         60, arcade.color.GREEN, 24)
+       
+        rectangle_height = 200  # Increased to fit all text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+        )
 
+        # Draw the "At Killy's home" message centered inside the rectangle
+        arcade.draw_text("Forest Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+                        arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+
+        # Draw each part of the story, ensuring long lines are wrapped within the screen width
+        arcade.draw_text(
+            "Your past laziness and irresponsibility led to broken promises and lost trust.",
+            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "The dogs attacked, and your friend left because of your carelessness.",
+            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "Now, it’s your chance to fix what you’ve done,take responsibility, rebuild trust, and save your friendship",
+            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
         if self.game_view.temporal_state == PRESENT:
             arcade.draw_text("Present: Lush Forest", 10,
                              SCREEN_HEIGHT - 100, arcade.color.WHITE, 20)
