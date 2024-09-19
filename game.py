@@ -277,6 +277,13 @@ class GameView(arcade.View):
                          arcade.color.WHITE, 20, bold=True)
 
         # Draw a text for the commands at the bottom right with improved style
+        arcade.draw_text("Press ", SCREEN_WIDTH - 200,
+                         62, arcade.color.WHITE, 12, bold=True)
+        arcade.draw_text("E", SCREEN_WIDTH - 150, 62,
+                         arcade.color.YELLOW, 14, bold=True)
+        arcade.draw_text(" to get item!", SCREEN_WIDTH -
+                         135, 62, arcade.color.WHITE, 12, bold=True)
+
         arcade.draw_text("Press ", SCREEN_WIDTH - 250,
                          40, arcade.color.WHITE, 12, bold=True)
         arcade.draw_text("SPACE", SCREEN_WIDTH - 200, 40,
@@ -727,6 +734,38 @@ class MapForest(BaseMapView):
         # pass
         arcade.start_render()
         self.scene.draw()
+
+       # Si on est dans le passé, dessiner un rectangle gris transparent
+        if self.tense == Tense.PAST:
+            # Rectangle gris transparent sur tout l'écran
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,  # Position au centre de l'écran
+                SCREEN_WIDTH, SCREEN_HEIGHT,  # Taille du rectangle pour couvrir tout l'écran
+                # Couleur grise avec une transparence (alpha = 150 sur 255)
+                (*arcade.color.GRAY, 150)
+            )
+
+            # Effet vignette : Rectangle noir transparent en bas
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH // 2, 0,  # Position au bas de l'écran
+                SCREEN_WIDTH, 50,  # Largeur complète, hauteur réduite pour l'effet
+                arcade.color.BLACK
+            )
+
+            # Effet vignette : Rectangle noir transparent à gauche
+            arcade.draw_rectangle_filled(
+                0, SCREEN_HEIGHT // 2,  # Position à gauche de l'écran
+                50, SCREEN_HEIGHT,  # Largeur réduite, hauteur complète
+                arcade.color.BLACK
+            )
+
+            # Effet vignette : Rectangle noir transparent à droite
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH, SCREEN_HEIGHT // 2,  # Position à droite de l'écran
+                50, SCREEN_HEIGHT,  # Largeur réduite, hauteur complète
+                arcade.color.BLACK
+            )
+
         if self.mail_sprite.visible == True:
             arcade.draw_text("Congrats ! you kept your promise.", TILE_SIZE *
                              TILE_SCALING*53, TILE_SIZE*TILE_SCALING*35, arcade.color.BLACK, 15)
