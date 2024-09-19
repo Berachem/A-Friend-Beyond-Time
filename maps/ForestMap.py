@@ -4,6 +4,7 @@ import math
 from utils.BaseMapView import BaseMapView
 from utils.tense import Tense
 from constants import *
+from utils.GameOverView import GameOverView
 
 
 class ForestMap(BaseMapView):
@@ -56,6 +57,14 @@ class ForestMap(BaseMapView):
         self.near_sprites_in_list_aux(
             sprite_list, [self.player_sprite], action, COLLECTING_DISTANCE)
 
+    def check_player_dogs_collision(self):
+        present_monsters = self.scene["angry-dogs"]
+        present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
+        if self.tense == Tense.PRESENT and present_collisions :
+            print("Game Over")
+            game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+            self.game_view.window.show_view(
+                            game_over_view) 
     def collect_wood(self, collectable):
         self.scene["collectables"].remove(collectable)
         self.wood += 1
@@ -246,6 +255,7 @@ class ForestMap(BaseMapView):
         # Mettre à jour la logique de poursuite des chiens
         self.chase_by_dogs()
         self.chase_by_dog_food()
+        self.check_player_dogs_collision()
 
         # Mettre à jour le moteur de physique
         self.physics_engine.update()
@@ -257,15 +267,3 @@ class ForestMap(BaseMapView):
             self.game_view.change_view(
                 (self.game_view.current_view + 1) % len(self.game_view.views))
             
-            
-        # Vérifier la collision entre le joueur et les chiens (chiens en colère)
-        # S'applique uniquement dans le présent avant de nourrir les chiens
-        # if self.tense == Tense.PRESENT and self.feeded_dogs < 4:
-        #     angry_dogs = self.scene["angry-dogs"]
-        #     for dog in angry_dogs:
-        #         # Si un chien entre en collision avec le joueur, déclencher le game over
-        #         if arcade.check_for_collision(self.player_sprite, dog):
-        #             game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
-        #             self.game_view.window.show_view(
-        #                 game_over_view)  # Affiche la vue "Game Over"
-        #             break

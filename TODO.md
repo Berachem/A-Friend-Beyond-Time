@@ -12,12 +12,12 @@ Voici la liste des tâches à faire pour le projet.
 
 - Forest : 
     - [x] Nourrir les chiens
-    - [ ] Donner des indices et expliquer le gameplay
+    - [x] Donner des indices et expliquer le gameplay
     - [x] Mettre effet passé visuel (filtre gris)
     - [x] Faire disparaitre le texte en haut quand on est proche
     - [x] Incrémenter l'étoile
     - [x] Quand on a nourri les chiens, faire passer à la map suivante
-    - [ ] Quand un chien nous touche,c'est game over
+    - [x] Quand un chien nous touche,c'est game over
 
 - Winter : 
     - [x] Ramasser les drapeaux
