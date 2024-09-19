@@ -4,6 +4,14 @@ Dans le cadre de la Game Jam 2024 avec pour 🖼️ Thème : "Manipuler le temps
 
 ![alt text](/assets/brand/prototype.png)
 
+## Développeurs 🛠️
+
+- Berachem MARKRIA
+- Abdallah M'CHIRI
+- Manar DEHMANI
+- Yue (Adèle) XIONG
+- Ferhat RAMDANI
+
 ## Scénario 📖
 
 > Après une violente dispute avec ton meilleur ami, ce dernier disparaît sans laisser de traces. Rongé par le remords, tu décides de le retrouver pour t'excuser et réparer cette relation brisée. En te lançant à sa recherche, tu réalises que la réalité qui t'entoure est fracturée par le temps. Les environnements changent d'aspect en fonction de la temporalité, et seul un voyage à travers le passé et le présent te permettra de le retrouver.

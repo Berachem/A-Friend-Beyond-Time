@@ -253,7 +253,7 @@ class GameView(arcade.View):
             SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50, 200, 80, arcade.color.BLACK + (150,))
 
         # Draw the formatted time next to the torch image
-        arcade.draw_text(f"{formatted_time}", SCREEN_WIDTH - 80, SCREEN_HEIGHT - 40,
+        arcade.draw_text(f"{formatted_time}", SCREEN_WIDTH - 88, SCREEN_HEIGHT - 40,
                          arcade.color.WHITE, 20, bold=True)
 
         # Draw the torch sprite (replacing the "Time" text)
@@ -263,8 +263,23 @@ class GameView(arcade.View):
         self.star_sprite.draw()
 
         # Draw the collected items number next to the star
-        arcade.draw_text(f"{self.items_collected}", SCREEN_WIDTH - 75, SCREEN_HEIGHT - 70,
+        arcade.draw_text(f"{self.items_collected}", SCREEN_WIDTH - 80, SCREEN_HEIGHT - 70,
                          arcade.color.WHITE, 20, bold=True)
+
+        # Draw a text for the commands at the bottom right with improved style
+        arcade.draw_text("Press ", SCREEN_WIDTH - 250,
+                         40, arcade.color.WHITE, 12, bold=True)
+        arcade.draw_text("SPACE", SCREEN_WIDTH - 200, 40,
+                         arcade.color.YELLOW, 14, bold=True)
+        arcade.draw_text(" to switch time", SCREEN_WIDTH -
+                         135, 40, arcade.color.WHITE, 12, bold=True)
+
+        arcade.draw_text("Use ", SCREEN_WIDTH - 250,
+                         20, arcade.color.WHITE, 12, bold=True)
+        arcade.draw_text("arrow keys", SCREEN_WIDTH - 210, 20,
+                         arcade.color.YELLOW, 14, bold=True)
+        arcade.draw_text(" to move", SCREEN_WIDTH - 110,
+                         20, arcade.color.WHITE, 12, bold=True)
 
     def on_key_press(self, key, modifiers):
         """ Handle key press for moving the player and switching temporal state. """
@@ -389,7 +404,7 @@ class Introduction(BaseMapView):
 
         # Draw a semi-transparent background box for the text
         arcade.draw_rectangle_filled(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH - 20, 160, arcade.color.BLACK + (200,))
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH - 20, 200, arcade.color.BLACK + (200,))
 
         # Draw the map details
         arcade.draw_text("At home", 20, SCREEN_HEIGHT -
@@ -407,6 +422,10 @@ class Introduction(BaseMapView):
         arcade.draw_text(
             "You need to find her and apologize before she gets too far away.",
             20, SCREEN_HEIGHT - 210, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+        )
+        arcade.draw_text(
+            "Change the time to find her...",
+            SCREEN_WIDTH - 400, SCREEN_HEIGHT - 240, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40, bold=True
         )
 
         # Draw the button
