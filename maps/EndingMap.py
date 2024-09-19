@@ -80,20 +80,38 @@ class EndingMap(BaseMapView):
         self.background.draw()
 
         # Adjust the rectangle to be taller to fit all the text
-        rectangle_height = 150  # Increased to fit all text
+        rectangle_height = 230  # Increased to fit all text
         arcade.draw_rectangle_filled(
             SCREEN_WIDTH // 2, SCREEN_HEIGHT -
             150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
         )
 
         # Draw the "At Killy's home" message centered inside the rectangle
-        arcade.draw_text("At Killy's home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+        arcade.draw_text("At Killy's home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100,  # Adjusted to be inside the rectangle
                          arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
 
         # Draw each part of the story, ensuring long lines are wrapped within the screen width
         arcade.draw_text(
             "Congratulations! You’ve completed the three missions that have tested your resolve, responsibility, and kindness.",
-            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            40, SCREEN_HEIGHT - 155,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "These three qualities have helped you rediscover and strengthen your friendship.",
+            40, SCREEN_HEIGHT - 185,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "Keep embracing these values, and you will continue to build strong, meaningful relationships that last a lifetime.",
+            40, SCREEN_HEIGHT - 215,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "True friendship is built on trust, shared challenges, and unwavering support for one another.",
+            40, SCREEN_HEIGHT - 245,  # Adjusted to fit inside the rectangle
             arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
         )
 
