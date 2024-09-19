@@ -279,7 +279,7 @@ class GameView(arcade.View):
         # Draw a text for the commands at the bottom right with improved style
         arcade.draw_text("Press ", SCREEN_WIDTH - 240,
                          62, arcade.color.WHITE, 12, bold=True)
-        arcade.draw_text("Enter", SCREEN_WIDTH -190, 62,
+        arcade.draw_text("Enter", SCREEN_WIDTH - 190, 62,
                          arcade.color.YELLOW, 14, bold=True)
         arcade.draw_text(" to get item!", SCREEN_WIDTH -
                          135, 62, arcade.color.WHITE, 12, bold=True)
@@ -481,7 +481,8 @@ class MapWinter(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -589,7 +590,8 @@ class MapWinter(BaseMapView):
                     self.game_view.change_view(3)
 
         # Mettre à jour l'arrière-plan si la temporalité change
-        expected_background_file = f"assets/images/backgrounds/winter_map_{self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/winter_map_{
+            self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -625,8 +627,6 @@ class MapForest(BaseMapView):
         # Setup physics engine
         self.update_walls_in_engine(
             [self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
-        
-        
 
     def update_walls_in_engine(self, walls):
         self.physics_engine = arcade.PhysicsEngineSimple(
@@ -664,6 +664,7 @@ class MapForest(BaseMapView):
         distance = math.sqrt(x_diff ** 2 + y_diff ** 2)
         if distance < 0.01:
             return  # Avoid division by zero
+
         sprite.center_x += (x_diff / distance) * speed
         sprite.center_y += (y_diff / distance) * speed
 
@@ -771,17 +772,20 @@ class MapForest(BaseMapView):
         if self.mail_sprite.visible == True:
             arcade.draw_text("Congrats ! you kept your promise.", TILE_SIZE *
                              TILE_SCALING*53, TILE_SIZE*TILE_SCALING*35, arcade.color.BLACK, 15)
-        
-        if self.tense == Tense.PRESENT:
+
+        # Check if the player will be out of bounds
+        if self.player_sprite.center_y < SCREEN_HEIGHT-300:
+
             rectangle_height = 200  # Increased to fit all text
             arcade.draw_rectangle_filled(
                 SCREEN_WIDTH // 2, SCREEN_HEIGHT -
-                150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+                150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK +
+                (200,)
             )
 
             # Draw the "At Killy's home" message centered inside the rectangle
             arcade.draw_text("Forest Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
-                            arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+                             arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
 
             # Draw each part of the story, ensuring long lines are wrapped within the screen width
             arcade.draw_text(
@@ -838,8 +842,22 @@ class MapForest(BaseMapView):
 
         # Si mail_sprite est visible, passer à la carte suivante et incrémenter les items collectés
         if self.mail_sprite.visible:
+            # Passez à la carte suivante
             self.game_view.items_collected += 1
-            self.game_view.change_view((self.game_view.current_view + 1) % len(self.game_view.views))
+            self.game_view.change_view(
+                (self.game_view.current_view + 1) % len(self.game_view.views))
+        # Vérifier la collision entre le joueur et les chiens (chiens en colère)
+        # S'applique uniquement dans le présent avant de nourrir les chiens
+        if self.tense == Tense.PRESENT and self.feeded_dogs < 4:
+            angry_dogs = self.scene["angry-dogs"]
+            for dog in angry_dogs:
+                # Si un chien entre en collision avec le joueur, déclencher le game over
+                if arcade.check_for_collision(self.player_sprite, dog):
+                    game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+                    self.game_view.window.show_view(
+                        game_over_view)  # Affiche la vue "Game Over"
+                    break
+
 
 class MapCITY(BaseMapView):
     """ Fourth map view """
@@ -856,7 +874,8 @@ class MapCITY(BaseMapView):
     def update_background(self):
         """Update background image based on temporal state."""
         # Définir le nom du fichier d'arrière-plan en fonction de l'état temporel
-        self.background_file_name = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
+        self.background_file_name = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
         self.background = arcade.Sprite(self.background_file_name)
 
         # Ajuster l'échelle de l'arrière-plan pour correspondre à la taille de la fenêtre
@@ -927,7 +946,8 @@ class MapCITY(BaseMapView):
         """Met à jour l'arrière-plan si l'état temporel change."""
 
         # Comparer l'état temporel actuel avec celui du fichier chargé
-        expected_background_file = f"assets/images/backgrounds/city_map_{self.game_view.temporal_state}.png"
+        expected_background_file = f"assets/images/backgrounds/city_map_{
+            self.game_view.temporal_state}.png"
         if self.background_file_name != expected_background_file:
             self.update_background()
 
@@ -1111,7 +1131,7 @@ class GameOverView(arcade.View):
             30,
             anchor_x="center",
         )
-        
+
         # Draw the UI manager (this draws the buttons)
         self.manager.draw()
 
