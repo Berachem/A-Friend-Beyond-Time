@@ -156,7 +156,6 @@ class GameView(arcade.View):
         self.past_music = None        # Music for the past
         self.current_music_player = None  # Current music player instance
 
-
         self.player_sprite = None
         self.temporal_state = PRESENT  # Current temporal state
         self.current_view = 0          # Keep track of the current view
@@ -196,12 +195,12 @@ class GameView(arcade.View):
         self.player_sprite.center_x = PLAYER_START_X  # Réinitialiser la position X
         self.player_sprite.center_y = PLAYER_START_Y  # Réinitialiser la position Y
 
-
     def change_music(self, new_music):
         """ Stop the current music and play new music """
         if self.current_music_player:
             arcade.stop_sound(self.current_music_player)
-        self.current_music_player = arcade.play_sound(new_music, volume=0.5, looping=True)
+        self.current_music_player = arcade.play_sound(
+            new_music, volume=0.5, looping=True)
 
     def setup(self):
         """ Set up the game here. """
@@ -209,10 +208,11 @@ class GameView(arcade.View):
         # Set the player's position to the center of the screen for the introduction
         self.player_sprite.center_x = SCREEN_WIDTH // 2
         self.player_sprite.center_y = SCREEN_HEIGHT // 2
-         
+
         # Load and play background music for the introduction
         self.background_music = arcade.load_sound("assets/sounds/intro.mp3")
-        self.current_music_player = arcade.play_sound(self.background_music, volume=0.5, looping=True)
+        self.current_music_player = arcade.play_sound(
+            self.background_music, volume=0.5, looping=True)
 
         # Load music for present and past
         self.present_music = arcade.load_sound("assets/sounds/present.mp3")
@@ -366,7 +366,7 @@ class Introduction(BaseMapView):
 
     def on_lets_go_click(self, event):
         """Switch to the next map when the button is clicked."""
-         # Stop the introduction music
+        # Stop the introduction music
         if self.game_view.current_music_player:
             arcade.stop_sound(self.game_view.current_music_player)
 
