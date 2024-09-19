@@ -1,6 +1,7 @@
 import arcade
 import math
 from utils.tense import Tense
+from constants import *
 
 # Constants specific to map1
 TILE_SCALING = 2
@@ -43,6 +44,68 @@ class CityMap:
   def on_draw(self):
     arcade.start_render()
     self.scene.draw()
+
+    # Si on est dans le passé, dessiner un rectangle gris transparent
+    if self.tense == Tense.PAST:
+            # Rectangle gris transparent sur tout l'écran
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,  # Position au centre de l'écran
+                SCREEN_WIDTH, SCREEN_HEIGHT,  # Taille du rectangle pour couvrir tout l'écran
+                # Couleur grise avec une transparence (alpha = 150 sur 255)
+                (*arcade.color.GRAY, 150)
+            )
+
+            # Effet vignette : Rectangle noir transparent en bas
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH // 2, 0,  # Position au bas de l'écran
+                SCREEN_WIDTH, 50,  # Largeur complète, hauteur réduite pour l'effet
+                arcade.color.BLACK
+            )
+
+            # Effet vignette : Rectangle noir transparent à gauche
+            arcade.draw_rectangle_filled(
+                0, SCREEN_HEIGHT // 2,  # Position à gauche de l'écran
+                50, SCREEN_HEIGHT,  # Largeur réduite, hauteur complète
+                arcade.color.BLACK
+            )
+
+            # Effet vignette : Rectangle noir transparent à droite
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH, SCREEN_HEIGHT // 2,  # Position à droite de l'écran
+                50, SCREEN_HEIGHT,  # Largeur réduite, hauteur complète
+                arcade.color.BLACK
+            )
+
+        # Check if the player will be out of bounds
+    if self.player_sprite.center_y < SCREEN_HEIGHT-300:
+
+        rectangle_height = 150  # Increased to fit all text
+        arcade.draw_rectangle_filled(
+            SCREEN_WIDTH // 2, SCREEN_HEIGHT -
+            180, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+        )
+
+        # Draw the "At Killy's home" message centered inside the rectangle
+        arcade.draw_text("City Mission ", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+                         arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+
+        # Draw each part of the story, ensuring long lines are wrapped within the screen width
+        arcade.draw_text(
+            "Reconnect with your friend by rejoining the weekly drawing class you both loved.",
+            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+
+        arcade.draw_text(
+            "You missed the chance before due to your car breaking down.",
+            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
+        arcade.draw_text(
+            "But now, with a second chance, take action to rebuild the friendship through shared hobbies.",
+            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+        )
     
 
   def on_key_press(self, key, modifiers):
