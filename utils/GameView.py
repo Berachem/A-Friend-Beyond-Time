@@ -59,7 +59,7 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             IntroductionMap(self),
-             CityMap(self,self.player_sprite),
+            CityMap(self,self.player_sprite),
             ForestMap(self, self.player_sprite),
             WinterMap(self,self.player_sprite),
            

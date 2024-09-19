@@ -62,11 +62,11 @@ class EndingMap(BaseMapView):
 
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
+        from utils.GameView import GameView 
         # Restart the game and go to the Introduction view
         game_view = GameView()  # Create a new instance of GameView
         game_view.setup()  # Set up the game state
         game_view.current_view = 0  # Ensure the introduction view is the first view
-        # Show the GameView with Introduction
         self.game_view.window.show_view(game_view)
 
     def on_quit_button_click(self, event):

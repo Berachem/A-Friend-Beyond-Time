@@ -1,6 +1,5 @@
 
 import arcade
-from Game import GameView
 from constants import *
 
 class GameOverView(arcade.View):
@@ -42,6 +41,7 @@ class GameOverView(arcade.View):
 
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
+        from utils.GameView import GameView
         # Restart the game and go to the Introduction view
         game_view = GameView()  # Create a new instance of GameView
         game_view.setup()  # Set up the game state

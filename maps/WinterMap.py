@@ -1,5 +1,7 @@
 import arcade
 import math
+from utils.GameOverView import GameOverView
+from utils.BaseMapView import BaseMapView
 from utils.tense import Tense
 import random
 
@@ -14,7 +16,7 @@ CHASING_SPEED = 2
 HORIZONTAL_TILES = 45
 VERTICAL_TILES = 25
 
-class WinterMap:
+class WinterMap(BaseMapView):
   def __init__(self, game_view, game_player_sprite):
     self.game_view = game_view
     self.player_sprite = game_player_sprite
@@ -56,6 +58,9 @@ class WinterMap:
     present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
     if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
       print("Game Over")
+      game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+      self.game_view.window.show_view(
+                      game_over_view)  # Affiche la vue "Game Over"
 
   def move_monsters(self, n, m):
     monsters = self.scene["past-monsters"]
@@ -177,8 +182,12 @@ class WinterMap:
       self.player_sprite.change_x = 0
 
   def on_update(self, delta_time):
-    self.move_monsters(3, TILE_SCALING * 16 * 10)
-    self.check_player_monster_collision()
+    if self.collected_flags > 3:
+      self.game_view.items_collected += 1
+      self.game_view.change_view(
+                  (self.game_view.current_view + 1) % len(self.game_view.views))
+    #self.move_monsters(3, TILE_SCALING * 16 * 10)
+    #self.check_player_monster_collision()
     self.check_flag_collisions()
     self.physics_engine.update()
     
