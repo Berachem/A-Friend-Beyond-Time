@@ -277,9 +277,9 @@ class GameView(arcade.View):
                          arcade.color.WHITE, 20, bold=True)
 
         # Draw a text for the commands at the bottom right with improved style
-        arcade.draw_text("Press ", SCREEN_WIDTH - 200,
+        arcade.draw_text("Press ", SCREEN_WIDTH - 240,
                          62, arcade.color.WHITE, 12, bold=True)
-        arcade.draw_text("E", SCREEN_WIDTH - 150, 62,
+        arcade.draw_text("Enter", SCREEN_WIDTH -190, 62,
                          arcade.color.YELLOW, 14, bold=True)
         arcade.draw_text(" to get item!", SCREEN_WIDTH -
                          135, 62, arcade.color.WHITE, 12, bold=True)
@@ -625,6 +625,8 @@ class MapForest(BaseMapView):
         # Setup physics engine
         self.update_walls_in_engine(
             [self.scene["angry-dogs"], self.scene["collectables"], self.scene["blocks"]])
+        
+        
 
     def update_walls_in_engine(self, walls):
         self.physics_engine = arcade.PhysicsEngineSimple(
@@ -769,35 +771,36 @@ class MapForest(BaseMapView):
         if self.mail_sprite.visible == True:
             arcade.draw_text("Congrats ! you kept your promise.", TILE_SIZE *
                              TILE_SCALING*53, TILE_SIZE*TILE_SCALING*35, arcade.color.BLACK, 15)
+        
+        if self.tense == Tense.PRESENT:
+            rectangle_height = 200  # Increased to fit all text
+            arcade.draw_rectangle_filled(
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT -
+                150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
+            )
 
-        rectangle_height = 200  # Increased to fit all text
-        arcade.draw_rectangle_filled(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT -
-            150, SCREEN_WIDTH, rectangle_height, arcade.color.BLACK + (200,)
-        )
+            # Draw the "At Killy's home" message centered inside the rectangle
+            arcade.draw_text("Forest Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
+                            arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
 
-        # Draw the "At Killy's home" message centered inside the rectangle
-        arcade.draw_text("Forest Mission", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125,  # Adjusted to be inside the rectangle
-                         arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
+            # Draw each part of the story, ensuring long lines are wrapped within the screen width
+            arcade.draw_text(
+                "Your past laziness and irresponsibility led to broken promises and lost trust.",
+                40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
+                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            )
 
-        # Draw each part of the story, ensuring long lines are wrapped within the screen width
-        arcade.draw_text(
-            "Your past laziness and irresponsibility led to broken promises and lost trust.",
-            40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
+            arcade.draw_text(
+                "The dogs attacked, and your friend left because of your carelessness.",
+                40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            )
 
-        arcade.draw_text(
-            "The dogs attacked, and your friend left because of your carelessness.",
-            40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
-
-        arcade.draw_text(
-            "Now, it’s your chance to fix what you’ve done,take responsibility, rebuild trust, and save your friendship",
-            40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
-        )
+            arcade.draw_text(
+                "Now, it’s your chance to fix what you’ve done,take responsibility, rebuild trust, and save your friendship",
+                40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            )
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.UP:
@@ -829,23 +832,14 @@ class MapForest(BaseMapView):
         # Mettre à jour la logique de poursuite des chiens
         self.chase_by_dogs()
         self.chase_by_dog_food()
-        
+
         # Mettre à jour le moteur de physique
         self.physics_engine.update()
+
+        # Si mail_sprite est visible, passer à la carte suivante et incrémenter les items collectés
         if self.mail_sprite.visible:
-        #     # Passez à la carte suivante
             self.game_view.items_collected += 1
             self.game_view.change_view((self.game_view.current_view + 1) % len(self.game_view.views))
-        # Vérifier la collision entre le joueur et les chiens (chiens en colère)
-        if self.tense == Tense.PRESENT and self.feeded_dogs < 4:  # S'applique uniquement dans le présent avant de nourrir les chiens
-            angry_dogs = self.scene["angry-dogs"]
-            for dog in angry_dogs:
-                # Si un chien entre en collision avec le joueur, déclencher le game over
-                if arcade.check_for_collision(self.player_sprite, dog):
-                    game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
-                    self.game_view.window.show_view(game_over_view)  # Affiche la vue "Game Over"
-                    break
-
 
 class MapCITY(BaseMapView):
     """ Fourth map view """
@@ -984,17 +978,6 @@ class Arrivee(BaseMapView):
         # Create and add the restart button
         self.create_button()
 
-    # def create_button(self):
-    #     """ Create the restart button """
-    #     restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
-    #     restart_button.on_click = self.on_restart_button_click
-    #     self.v_box.add(restart_button.with_space_around(top=800, bottom=400,right=200))
-
-    #     # Quit Button
-    #     quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
-    #     quit_button.on_click = self.on_quit_button_click
-    #     self.v_box.add(quit_button)
-
     def create_button(self):
         """ Create the restart and quit buttons """
         # Create a horizontal box layout
@@ -1128,7 +1111,7 @@ class GameOverView(arcade.View):
             30,
             anchor_x="center",
         )
-
+        
         # Draw the UI manager (this draws the buttons)
         self.manager.draw()
 
