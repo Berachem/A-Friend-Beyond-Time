@@ -146,13 +146,13 @@ class CityMap(BaseMapView):
 
       # Check which key is pressed and set movement accordingly
       if key == arcade.key.UP:
-          Y = PLAYER_SPEED * 5  # Move up
+          Y = PLAYER_SPEED * 3  # Move up
       elif key == arcade.key.DOWN:
-          Y = -PLAYER_SPEED * 5  # Move down
+          Y = -PLAYER_SPEED * 3 # Move down
       elif key == arcade.key.LEFT:
-          X = -PLAYER_SPEED * 5  # Move left
+          X = -PLAYER_SPEED * 3  # Move left
       elif key == arcade.key.RIGHT:
-          X = PLAYER_SPEED * 5  # Move right
+          X = PLAYER_SPEED * 3  # Move right
 
       # Get the car sprites
       car_sprite_list = self.scene.get_sprite_list("present_car")
