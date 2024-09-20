@@ -21,6 +21,7 @@ class ForestMap(BaseMapView):
         self.scene = None
         self.physics_engine = None
         self.mail_sprite = None
+        self.dog_food_sprites = arcade.SpriteList()
         self.wood = 0
         self.is_bridge_constructed = False
         self.feeded_dogs = 0
@@ -38,6 +39,16 @@ class ForestMap(BaseMapView):
         self.mail_sprite.center_y = 35 * TILE_SIZE
         self.scene.add_sprite("mail", self.mail_sprite)
         self.mail_sprite.visible = False
+
+        dog_food = "assets/maps/raw/dog-food.png"
+        actual_tile_size = TILE_SIZE * TILE_SCALING
+        for i in range(5):
+            dog_food_sprite = arcade.Sprite(dog_food , .1)
+            dog_food_sprite.center_x = i * 3 * actual_tile_size + (actual_tile_size * 15)
+            dog_food_sprite.center_y = actual_tile_size * 5
+            self.dog_food_sprites.append(dog_food_sprite)
+        self.scene.add_sprite_list(name="dog-food", sprite_list=self.dog_food_sprites)
+        self.scene["dog-food"].visible = False
 
         # Setup physics engine
         self.update_walls_in_engine(
@@ -66,7 +77,7 @@ class ForestMap(BaseMapView):
         present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
         if self.tense == Tense.PRESENT and present_collisions :
             print("Game Over")
-            game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+            game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
             self.game_view.window.show_view(
                             game_over_view) 
     def collect_wood(self, collectable):

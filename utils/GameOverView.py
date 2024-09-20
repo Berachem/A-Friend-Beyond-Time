@@ -5,10 +5,12 @@ from constants import *
 class GameOverView(arcade.View):
     """ View to show when the game is over """
 
-    def __init__(self):
+    def __init__(self,gameview):
         """ This is run once when we switch to this view """
         super().__init__()
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
+        self.gameview = gameview
+        arcade.stop_sound(self.gameview.current_music_player)
 
         # Load background image
         # Update to the correct path for your background
@@ -57,11 +59,9 @@ class GameOverView(arcade.View):
     def on_restart_button_click(self, event):
         """ Handle the restart button click """
         from utils.GameView import GameView
+        self.gameview.restart()
         # Restart the game and go to the Introduction view
-        game_view = GameView()  # Create a new instance of GameView
-        game_view.setup()  # Set up the game state
-        game_view.current_view = 0  # Ensure the introduction view is the first view
-        self.window.show_view(game_view)  # Show the GameView with Introduction
+        self.window.show_view(self.gameview)  # Show the GameView with Introduction
 
     def on_quit_button_click(self, event):
         """ Handle the quit button click """
