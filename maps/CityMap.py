@@ -26,6 +26,7 @@ class CityMap(BaseMapView):
     self.tool = False
     self.is_car_fixed = False
     self.drive_car = False
+    self.car_moving_key = None
     self.setup()
 
   def setup(self):
@@ -123,6 +124,7 @@ class CityMap(BaseMapView):
           self.switch_tense()
       else:
           if self.tense == Tense.PRESENT:
+            self.car_moving_key = key
             self.move_sprites(self.scene["present_car"], key)
 
   def move_player(self, sprites, key):
@@ -204,10 +206,14 @@ class CityMap(BaseMapView):
     self.near_sprites_in_list_aux(sprite_list, [self.player_sprite], action, COLLECTING_DISTANCE)
 
   def on_key_release(self, key, modifiers):
+    print("just released ")
     if key == arcade.key.UP or key == arcade.key.DOWN:
       self.player_sprite.change_y = 0
     elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
       self.player_sprite.change_x = 0
+    
+    if self.car_moving_key is not None :
+      self.car_moving_key = None
 
   def on_update(self, delta_time):
     # Update physics engine (for player and walls interaction)
@@ -216,6 +222,9 @@ class CityMap(BaseMapView):
             self.game_view.items_collected += 1
             self.game_view.change_view(
                         (self.game_view.current_view + 1) % len(self.game_view.views))
+            
+    if self.car_moving_key is not None:
+      self.move_sprites(self.scene["present_car"], self.car_moving_key)
 
 
     # Move the car if it has been repaired
