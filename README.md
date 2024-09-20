@@ -8,7 +8,7 @@ Dans le cadre de la Game Jam 2024 :
 
 ![alt text](/assets/brand/affiche.png)
 
-## Développeurs 🛠️
+## Développeuses et développeurs 👩‍💻👨‍💻
 
 - Berachem MARKRIA
 - Abdallah M'CHIRI
@@ -69,7 +69,7 @@ Lire des lettres laissées par ton ami, contenant des indices sur sa localisatio
 
 ## Réalisation
 
-### Outils utilisés
+### Technologies
 
 [![My Skills](https://skillicons.dev/icons?i=python,figma)](https://skillicons.dev)
 
