@@ -41,7 +41,7 @@ class CityMap(BaseMapView):
     self.tool_sprite.center_x = 5 * TILE_SIZE * TILE_SCALING
     self.tool_sprite.center_y = 15 * TILE_SIZE * TILE_SCALING
     self.scene.add_sprite("tool", self.tool_sprite)
-    self.tool_sprite.visible = True
+    self.tool_sprite.visible = False
     
     # Setup physics engine
     self.update_walls_in_engine([self.scene["decoration"], self.scene["immeuble"], self.scene["present_car"], self.scene["past_car"], self.scene["road"], self.scene["wall"]])
@@ -196,12 +196,14 @@ class CityMap(BaseMapView):
   def switch_tense(self):
     self.scene["problem"].visible = not self.is_car_fixed
     if self.tense == Tense.PRESENT:
-      self.scene["tool"].visible = True
+      print("changing tool ...")
+      self.tool_sprite.visible = True
+      print(self.tool_sprite.visible)
       self.scene["past_car"].visible = True
       self.scene["present_car"].visible = False
       self.tense = Tense.PAST
     else:
-      self.scene["tool"].visible = False
+      self.tool_sprite.visible = False
       self.scene["past_car"].visible = False
       self.scene["present_car"].visible = True
       self.tense = Tense.PRESENT
