@@ -16,14 +16,46 @@ class GameView(arcade.View):
 
     def restart(self):
         """ Reset game state to start over """
-        self.setup()  # Reinitialize the game state
+        super().__init__()
+        arcade.stop_sound(self.current_music_player)
+        # Music variables
+        self.background_music = None  # Music for the introduction
+        self.present_music = None     # Music for the present
+        self.past_music = None        # Music for the past
+        self.current_music_player = None  # Current music player instance
+
+        self.player_sprite = None
+        self.temporal_state = PRESENT  # Current temporal state
+        self.current_view = 0          # Keep track of the current view
+        self.physics_engine = None
+        self.setup()
+
+        # HUD elements
         self.time_elapsed = 0
         self.items_collected = 0
-        self.current_view = 0
-        self.player_sprite.center_x = PLAYER_START_X
-        self.player_sprite.center_y = PLAYER_START_Y
-        # Assuming views need to be reset
-        self.views[self.current_view].setup()
+
+        # Load the torch image sprite
+        self.torch_sprite = arcade.Sprite(
+            ":resources:images/tiles/torch2.png", 0.30)
+
+        # Set the position of the torch sprite where the "Time" text was
+        self.torch_sprite.center_x = SCREEN_WIDTH - 100
+        self.torch_sprite.center_y = SCREEN_HEIGHT - 30
+
+        self.star_sprite = arcade.Sprite(
+            ":resources:images/items/star.png", 0.5)
+        self.star_sprite.center_x = SCREEN_WIDTH - 100
+        self.star_sprite.center_y = SCREEN_HEIGHT - 60
+
+        # Create the views (levels)
+        self.views = [
+            IntroductionMap(self),
+            CityMap(self, self.player_sprite),
+            ForestMap(self, self.player_sprite),
+            WinterMap(self, self.player_sprite),
+            EndingMap(self)
+
+        ]
 
     def __init__(self):
         super().__init__()
@@ -219,3 +251,4 @@ class GameView(arcade.View):
                 self.current_view = (self.current_view - 1) % len(self.views)
                 self.player_sprite.center_x = SCREEN_WIDTH - \
                     PLAYER_BORDER_PADDING  # Reset player to right edge
+                

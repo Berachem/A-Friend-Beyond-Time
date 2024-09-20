@@ -77,7 +77,7 @@ class ForestMap(BaseMapView):
         present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
         if self.tense == Tense.PRESENT and present_collisions :
             print("Game Over")
-            game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+            game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
             self.game_view.window.show_view(
                             game_over_view) 
     def collect_wood(self, collectable):
