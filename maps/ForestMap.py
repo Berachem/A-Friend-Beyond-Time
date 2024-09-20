@@ -16,7 +16,7 @@ class ForestMap(BaseMapView):
         self.player_sprite.center_x = 100  # Ou une autre position de départ logique dans ForestMap
         self.player_sprite.center_y = 100  # Position de départ
         self.player_sprite.visible = True
-        print("here goes player", game_player_sprite)
+        #print("here goes player", game_player_sprite)
         self.tile_map = None
         self.scene = None
         self.physics_engine = None
@@ -33,18 +33,18 @@ class ForestMap(BaseMapView):
         self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
-        mail_source = "assets/maps/raw/mail.png"
+        mail_source = "assets/maps/forest/letter.png"
         self.mail_sprite = arcade.Sprite(mail_source, .3)
-        self.mail_sprite.center_x = 75 * TILE_SIZE
-        self.mail_sprite.center_y = 35 * TILE_SIZE
+        self.mail_sprite.center_x = 82.5 * TILE_SIZE
+        self.mail_sprite.center_y = 38.5 * TILE_SIZE
         self.scene.add_sprite("mail", self.mail_sprite)
         self.mail_sprite.visible = False
 
         dog_food = "assets/maps/raw/dog-food.png"
         actual_tile_size = TILE_SIZE * TILE_SCALING
         for i in range(5):
-            dog_food_sprite = arcade.Sprite(dog_food , .1)
-            dog_food_sprite.center_x = i * 3 * actual_tile_size + (actual_tile_size * 15)
+            dog_food_sprite = arcade.Sprite(dog_food , .12)
+            dog_food_sprite.center_x = i * 4 * actual_tile_size + (actual_tile_size * 12)
             dog_food_sprite.center_y = actual_tile_size * 5
             self.dog_food_sprites.append(dog_food_sprite)
         self.scene.add_sprite_list(name="dog-food", sprite_list=self.dog_food_sprites)
@@ -76,7 +76,7 @@ class ForestMap(BaseMapView):
         present_monsters = self.scene["angry-dogs"]
         present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
         if self.tense == Tense.PRESENT and present_collisions :
-            print("Game Over")
+            #print("Game Over")
             game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
             self.game_view.window.show_view(
                             game_over_view) 
@@ -121,7 +121,7 @@ class ForestMap(BaseMapView):
                 self.chase_player(food, PLAYER_SPEED * 2)
 
     def feed_dog(self, dog_food_sprite):
-        print("dogs are feeded")
+        #print("dogs are feeded")
         self.feeded_dogs += 1
         self.scene["dog-food"].remove(dog_food_sprite)
         if (self.feeded_dogs >= 4):
@@ -276,7 +276,7 @@ class ForestMap(BaseMapView):
         self.physics_engine.update()
 
         # Si mail_sprite est visible, passer à la carte suivante et incrémenter les items collectés
-        if self.mail_sprite.visible:
+        if self.mail_sprite.visible and arcade.check_for_collision(self.mail_sprite, self.player_sprite) and self.tense == Tense.PRESENT:
             # Passez à la carte suivante
             self.game_view.items_collected += 1
             self.game_view.change_view(

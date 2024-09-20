@@ -25,7 +25,8 @@ class WinterMap(BaseMapView):
     self.scene = None
     self.physics_engine = None
     self.monster_sprite = None
-    self.collected_flags = 0
+    self.collected_flags_past = 0
+    self.collected_flags_present = 0
     self.tense = Tense.PRESENT    
     self.setup()
 
@@ -33,7 +34,7 @@ class WinterMap(BaseMapView):
     map_name = "assets/maps/ski/ski.json"
     self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
     self.scene = arcade.Scene.from_tilemap(self.tile_map)
-    print("WinterMap ",self.scene["decoration"])
+    #print("WinterMap ",self.scene["decoration"])
 
     # Setup physics engine
     self.update_walls_in_engine([self.scene["decoration"]])
@@ -58,7 +59,7 @@ class WinterMap(BaseMapView):
     past_collisions = arcade.check_for_collision_with_list(self.player_sprite, past_monsters)
     present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
     if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
-      print("Game Over")
+      #print("Game Over")
       game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
       self.game_view.window.show_view(
                       game_over_view)  # Affiche la vue "Game Over"
@@ -108,14 +109,17 @@ class WinterMap(BaseMapView):
 
   def check_flag_collisions(self):
     flags = self.scene["flags"]
-    for flag in flags:
-      if arcade.check_for_collision(self.player_sprite, flag):
-        self.collected_flags += 1
-        flags.remove(flag)  # Remove the flag on collision with player
-
-  def display_invisibles(self, invisibles):
-    if self.nbFlag > 3 and self.tense == Tense.PRESENT:
-      self.scene["past-monsters"].visible = False
+    flags_present = self.scene["flags-present"]
+    if self.tense == Tense.PAST:
+      for flag in flags:
+          if arcade.check_for_collision(self.player_sprite, flag):
+            self.collected_flags_past += 1
+            flags.remove(flag)
+    else:
+      for flag in flags_present:
+          if arcade.check_for_collision(self.player_sprite, flag):
+            self.collected_flags_present += 1
+            flags_present.remove(flag)
 
   def chase_player(self, sprite, speed):
     x_diff = self.player_sprite.center_x - sprite.center_x
@@ -135,26 +139,21 @@ class WinterMap(BaseMapView):
         if distance < CHASING_DISTANCE:  # Check if the dog is near the player
           self.chase_player(monster, CHASING_SPEED)  # Make the dog chase the player
 
-  def take_flag(self, dog_food_sprite):
-    print("Take flag !")
-    self.nbFlag += 1
-    if(self.nbFlag >= 4):
-      self.tense == Tense.PRESENT
-
   def switch_tense(self):
-    print(self.tense)
+    #print(self.tense)
     if self.tense == Tense.PRESENT:
       self.scene["past-monsters"].visible = True
       self.scene["present-monsters"].visible = False
       self.tense = Tense.PAST
     else:
-      if self.collected_flags > 3:
+      if self.collected_flags_past > 3:
         self.scene["past-monsters"].visible = False
         self.scene["present-monsters"].visible = False
-        print("You won !")
+        self.scene["flags-present"].visible = True
       else:
         self.scene["past-monsters"].visible = False
         self.scene["present-monsters"].visible = True
+        self.scene["flags-present"].visible = False
       
       self.tense = Tense.PRESENT
       
@@ -246,10 +245,16 @@ class WinterMap(BaseMapView):
       self.player_sprite.change_x = 0
 
   def on_update(self, delta_time):
-    if self.collected_flags > 3:
+    #if self.collected_flags_past > 3:
+    #  self.game_view.items_collected += 1
+    #  self.game_view.change_view(
+    #              (self.game_view.current_view + 1) % len(self.game_view.views))
+
+    if self.collected_flags_present > 3 and self.tense == Tense.PRESENT:
       self.game_view.items_collected += 1
       self.game_view.change_view(
                   (self.game_view.current_view + 1) % len(self.game_view.views))
+
     self.move_monsters(3, TILE_SCALING * 16 * 10)
     self.check_player_monster_collision()
     self.check_flag_collisions()

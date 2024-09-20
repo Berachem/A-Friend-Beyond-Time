@@ -73,6 +73,9 @@ class EndingMap(BaseMapView):
         """ Handle the quit button click """
         # Quit the application
         arcade.exit()
+    
+    def on_key_release(self, key, modifiers):
+        pass
 
     def on_draw(self):
         """ Draw the arrival scene with the 'You Win' message and restart button """
