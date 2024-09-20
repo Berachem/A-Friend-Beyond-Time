@@ -107,7 +107,7 @@ class CityMap(BaseMapView):
         arcade.draw_text(
             "But now, with a second chance, go back to the past, get the item to repair the car and come back to the present,so you can drive it",
             40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
         )
     
 

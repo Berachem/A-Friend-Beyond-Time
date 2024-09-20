@@ -220,9 +220,9 @@ class WinterMap(BaseMapView):
             )
 
             arcade.draw_text(
-                " to make things right. Confront your fears, fight alongside your friends, and strive to overcome the past.",
+                " To make things right,go back to the past,Confront your fears, fight alongside your friends, and strive to overcome the past.",
                 40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+                arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )
 
   def on_key_press(self, key, modifiers):

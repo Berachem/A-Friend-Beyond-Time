@@ -67,26 +67,30 @@ class IntroductionMap(BaseMapView):
         arcade.draw_rectangle_filled(
             SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, SCREEN_WIDTH - 20, 200, arcade.color.BLACK + (200,))
 
-        # Draw the map details
-        arcade.draw_text("At home", 20, SCREEN_HEIGHT -
-                         80, arcade.color.GREEN, 24)
+        arcade.draw_text("At home", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80,  # Adjusted to be inside the rectangle
+                         arcade.color.GREEN, 24, anchor_x="center", anchor_y="center")
 
         # Draw the introduction text
         arcade.draw_text(
             "Arrrrffff ! You and Kelly are fighting because you broke her favorite paint palette and got paint all over the floor....",
-            20, SCREEN_HEIGHT - 150, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+            20, SCREEN_HEIGHT - 120, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
         )
         arcade.draw_text(
             "She's so mad that she's left the house and you're not sure where she's gone.",
-            20, SCREEN_HEIGHT - 180, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+            20, SCREEN_HEIGHT - 150, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
         )
         arcade.draw_text(
             "You need to find her and apologize before she gets too far away.",
-            20, SCREEN_HEIGHT - 210, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
+            20, SCREEN_HEIGHT - 180, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40
         )
         arcade.draw_text(
-            "Change the time to find her...",
-            SCREEN_WIDTH - 400, SCREEN_HEIGHT - 240, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40, bold=True
+            "But to make things right, you’ll have to complete three missions.",
+            20,SCREEN_HEIGHT - 210, arcade.color.WHITE, 18, width=SCREEN_WIDTH - 40,
+        )
+
+        arcade.draw_text(
+            "For each one, you’ll need to go back in time, fix your mistakes, and repair the present.",
+            20,SCREEN_HEIGHT - 240, arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 40,
         )
 
         # Draw the button

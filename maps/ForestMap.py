@@ -212,21 +212,21 @@ class ForestMap(BaseMapView):
 
             # Draw each part of the story, ensuring long lines are wrapped within the screen width
             arcade.draw_text(
-                "Your past laziness and irresponsibility led to broken promises and lost trust.",
+                "The dogs attacked, and your friend left because of your carelessness.",
                 40, SCREEN_HEIGHT - 175,  # Adjusted to fit inside the rectangle
                 arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
             )
 
             arcade.draw_text(
-                "The dogs attacked, and your friend left because of your carelessness.",
-                40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+                "Now, it’s your chance to fix what you’ve done,you collect the trees to make the bridge,",
+                40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
+                arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )
 
             arcade.draw_text(
-                "Now, it’s your chance to fix what you’ve done,take responsibility, rebuild trust, and save your friendship",
-                40, SCREEN_HEIGHT - 205,  # Adjusted to fit inside the rectangle
-                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+                "collect food to feed the dogs to finish the activity",
+                40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
+                arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )
 
     def on_key_press(self, key, modifiers):
