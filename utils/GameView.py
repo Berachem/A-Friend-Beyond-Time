@@ -59,7 +59,7 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             IntroductionMap(self),
-            #CityMap(self, self.player_sprite),
+            CityMap(self, self.player_sprite),
             ForestMap(self, self.player_sprite),
             WinterMap(self, self.player_sprite),
 
@@ -199,8 +199,6 @@ class GameView(arcade.View):
             self.player_sprite.change_y = 0
 
         self.views[self.current_view].on_key_release(key, modifiers)
-
-        
 
     def on_update(self, delta_time):
         """ Update the current view and check for map transitions. """
