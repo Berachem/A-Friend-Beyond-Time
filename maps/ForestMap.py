@@ -12,6 +12,10 @@ class ForestMap(BaseMapView):
         super().__init__(game_view)
         self.game_view = game_view
         self.player_sprite = game_player_sprite
+            # Positionner le joueur correctement dans la nouvelle carte
+        self.player_sprite.center_x = 100  # Ou une autre position de départ logique dans ForestMap
+        self.player_sprite.center_y = 100  # Position de départ
+        self.player_sprite.visible = True
         print("here goes player", game_player_sprite)
         self.tile_map = None
         self.scene = None
@@ -267,3 +271,7 @@ class ForestMap(BaseMapView):
             self.game_view.change_view(
                 (self.game_view.current_view + 1) % len(self.game_view.views))
             
+    def change_view(self, new_view):
+        # Assurez-vous que vous passez correctement le sprite du joueur à la nouvelle vue
+        new_view.setup()  # Initialiser la nouvelle vue
+        self.window.show_view(new_view)

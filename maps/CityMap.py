@@ -1,6 +1,7 @@
 import arcade
 import math
 from utils.BaseMapView import BaseMapView
+from utils.GameOverView import GameOverView
 from utils.tense import Tense
 from constants import *
 
@@ -158,6 +159,10 @@ class CityMap(BaseMapView):
           # Calculate new position
           sprite.center_x = sprite.center_x + X
           sprite.center_y = sprite.center_y + Y
+          if arcade.check_for_collision_with_list(sprite, self.scene["immeuble"]):
+              game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+              self.game_view.window.show_view(
+                      game_over_view)  # Affiche la vue "Game Over"
           if arcade.check_for_collision_with_list(sprite, self.scene["destination"]) :
             self.finish = True
          
@@ -216,6 +221,7 @@ class CityMap(BaseMapView):
             self.game_view.items_collected += 1
             self.game_view.change_view(
                         (self.game_view.current_view + 1) % len(self.game_view.views))
+            self.player_sprite.visible = True
 
 
     # Move the car if it has been repaired
