@@ -2,6 +2,7 @@ import arcade
 from constants import *
 from utils.BaseMapView import BaseMapView
 
+
 class IntroductionMap(BaseMapView):
     """ First map view: House """
 
@@ -53,6 +54,9 @@ class IntroductionMap(BaseMapView):
 
         self.game_view.current_view = (
             self.game_view.current_view + 1) % len(self.game_view.views)
+
+        # remove the button
+        self.manager.disable()
 
     def on_draw(self):
         """ Draw the map. """
