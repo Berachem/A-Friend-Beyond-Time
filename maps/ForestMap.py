@@ -235,7 +235,7 @@ class ForestMap(BaseMapView):
             )
 
             arcade.draw_text(
-                "collect food to feed the dogs to finish the activity",
+                "collect food to feed the dogs, return to the present, collect the letter to complete the activity",
                 40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
                 arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )

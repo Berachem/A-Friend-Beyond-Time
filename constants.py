@@ -10,7 +10,7 @@ CHASING_SPEED = 3
 # --- Constants ---
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 800
-SCREEN_TITLE = "Lost in Time, Found in Friendship"
+SCREEN_TITLE = "A Friend Beyond Time"
 
 
 # Temporal Constants

@@ -219,7 +219,7 @@ class WinterMap(BaseMapView):
             )
 
             arcade.draw_text(
-                " To make things right,go back to the past,Confront your fears, fight alongside your friends, and strive to overcome the past.",
+                " To make things right,go back to the past,Confront your fears,collect the red flag and return to the present to collect them to win",
                 40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
                 arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )
