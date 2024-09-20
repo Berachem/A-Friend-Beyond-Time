@@ -1,10 +1,14 @@
-# A Friend Beyond Time
+# ⏱️ A Friend Beyond Time
 
-Dans le cadre de la Game Jam 2024 avec pour 🖼️ Thème : "Manipuler le temps est la clé." Nous avons réalisé un jeu de plateforme en 2D avec un gameplay basé sur la manipulation du temps.
+Dans le cadre de la Game Jam 2024 :
 
-![alt text](/assets/brand/prototype.png)
+> 🖼️ Thème : "Manipuler le temps est la clé."
 
-## Développeurs 🛠️
+**L'amour, l'amitié et le pardon** sont des thèmes centraux de l'histoire de notre jeu. Le joueur doit naviguer à travers les différentes cartes pour retrouver son ami et réparer leur relation. En manipulant le temps, en collectant des indices et en évitant les dangers, le joueur doit surmonter les obstacles pour atteindre son objectif.
+
+![alt text](/assets/brand/affiche.png)
+
+## Développeuses et développeurs 👩‍💻👨‍💻
 
 - Berachem MARKRIA
 - Abdallah M'CHIRI
@@ -22,7 +26,7 @@ Le passé représente la période avant la dispute, avec des paysages familiers 
 Le présent est marqué par la solitude, les conséquences de la dispute, et des environnements plus hostiles où des ennemis et obstacles ont surgi.
 Ton ami a laissé des indices (clés, lettres, objets) dans les différentes époques pour t'aider à le retrouver. Mais attention, le temps est limité, et tu devras jongler entre les deux temporalités pour surmonter les obstacles.
 
-## Objectif
+## Objectif 🎯
 
 ### Mission principale :
 
@@ -50,22 +54,22 @@ Lire des lettres laissées par ton ami, contenant des indices sur sa localisatio
    Présent : Des créatures hostiles ou des pièges automatiques bloquent le chemin. Les ennemis suivent des chemins spécifiques, et le joueur doit éviter ou contourner ces dangers.
    Passé : Moins d’ennemis actifs, mais des obstacles environnementaux comme des ruines ou des bâtiments effondrés bloquent le chemin.
 
-## Gameplay
+## Gameplay 🎮
 
 ### Contrôles ⌨️
 
 - **Déplacement :** Flèches directionnelles (gauche, droite, haut, bas)
 - **Changer de temporalité :** Espace
 
-### Objets 🗝
+### Quêtes 🗝
 
-...
-
-️
+- **Réparer la voiture :** Trouver les pièces de la voiture pour la réparer et atteindre l'atelier de peinture où ton ami aime aller
+- **Nourrir les chiens :** Trouver de la nourriture pour les chiens errants et les apaiser
+- **Ramasser les drapeaux :** Collecter les drapeaux pour montrer ton soutien à ton ami
 
 ## Réalisation
 
-### Outils utilisés
+### Technologies
 
 [![My Skills](https://skillicons.dev/icons?i=python,figma)](https://skillicons.dev)
 

@@ -1,6 +1,6 @@
-
 import arcade
 from constants import *
+
 
 class GameOverView(arcade.View):
     """ View to show when the game is over """
@@ -10,12 +10,16 @@ class GameOverView(arcade.View):
         super().__init__()
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
 
-        arcade.set_background_color(arcade.color.WHITE)
+        # Load background image
+        # Update to the correct path for your background
+        self.background_image = arcade.load_texture(
+            "assets/images/backgrounds/game_over.jpg")
 
         # Initialize the UI manager and vertical box layout
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
-        self.v_box = arcade.gui.UIBoxLayout()
+        self.v_box = arcade.gui.UIBoxLayout(
+            space_between=20)  # Add space between buttons
 
         # Add v_box to the manager
         self.manager.add(
@@ -28,7 +32,16 @@ class GameOverView(arcade.View):
 
         # Create and add buttons
         self.create_buttons()
-        self.game_over_image = arcade.load_texture("assets/images/items/coeurBrise.png")  # Change the path to your image file
+
+        # Load the game over image
+        self.game_over_image = arcade.load_texture(
+            "assets/images/items/coeurBrise.png")  # Change the path to your image file
+
+        # Load and prepare background music
+        self.game_over_music = arcade.load_sound(
+            "assets/sounds/game_over_sound.mp3")
+        self.current_music_player = None
+
     def create_buttons(self):
         """ Create the restart and quit buttons """
         # Restart Button
@@ -59,6 +72,11 @@ class GameOverView(arcade.View):
         """ Draw this view """
         self.clear()
 
+        # Draw the background image
+        arcade.draw_lrwh_rectangle_textured(
+            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background_image
+        )
+
         # Draw the game over text
         arcade.draw_text(
             "Game Over",
@@ -83,3 +101,15 @@ class GameOverView(arcade.View):
         """ This is called when we switch to this view """
         # Make sure the mouse cursor is visible
         self.window.set_mouse_visible(True)
+
+        # Play the game over music in the background
+        if self.current_music_player:
+            arcade.stop_sound(self.current_music_player)
+        self.current_music_player = arcade.play_sound(
+            self.game_over_music, volume=0.5, looping=True)
+
+    def on_hide_view(self):
+        """ This is called when we leave the view """
+        # Stop the music when leaving the view
+        if self.current_music_player:
+            arcade.stop_sound(self.current_music_player)

@@ -198,6 +198,10 @@ class GameView(arcade.View):
         elif key in [arcade.key.UP, arcade.key.DOWN]:
             self.player_sprite.change_y = 0
 
+        self.views[self.current_view].on_key_release(key, modifiers)
+
+        
+
     def on_update(self, delta_time):
         """ Update the current view and check for map transitions. """
         self.player_sprite.update()
