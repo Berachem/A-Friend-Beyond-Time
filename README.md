@@ -14,45 +14,14 @@ Dans le cadre de la Game Jam 2024 :
 
 
 ## 👩‍💻👨‍💻 Développeuses et développeurs 
-
-<table border="0">
-    <tr>
-        <td>
-
-- Berachem MARKRIA
-
-- Abdallah M'CHIRI
-- Manar DEHMANI
-- Yue (Adèle) XIONG
-- Ferhat RAMDANI
-            ____________________________________
-        </td>
-        <td>
-            <img src="./assets/brand/photo_equipe.jpg" width="300" height="200" />
-             ____________________________________
-        </td>
-
-    </tr>
-</table>
-
-<table>
-  <tr>
- <td align="center">
-    
+<center>
+<img src="./assets/brand/photo_equipe.jpg" width="450" height="420" />
 
 
-</td>
-
-   </tr>
-   <tr>
-   <td align="center">
-
-   a.k.a. **BAMFY**
-
-   </td>
+Abdallah M'CHIRI, Yue (Adèle) XIONG, Manar DEHMANI, Berachem MARKRIA, Ferhat RAMDANI
+</center>
 
 
-</table>
 
 ## 📖 Scénario 
 
