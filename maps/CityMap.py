@@ -196,9 +196,9 @@ class CityMap(BaseMapView):
   def switch_tense(self):
     self.scene["problem"].visible = not self.is_car_fixed
     if self.tense == Tense.PRESENT:
-      print("changing tool ...")
+      #print("changing tool ...")
       self.tool_sprite.visible = True
-      print(self.tool_sprite.visible)
+      #print(self.tool_sprite.visible)
       self.scene["past_car"].visible = True
       self.scene["present_car"].visible = False
       self.tense = Tense.PAST

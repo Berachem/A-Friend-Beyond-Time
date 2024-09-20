@@ -16,7 +16,7 @@ class ForestMap(BaseMapView):
         self.player_sprite.center_x = 100  # Ou une autre position de départ logique dans ForestMap
         self.player_sprite.center_y = 100  # Position de départ
         self.player_sprite.visible = True
-        print("here goes player", game_player_sprite)
+        #print("here goes player", game_player_sprite)
         self.tile_map = None
         self.scene = None
         self.physics_engine = None
@@ -76,7 +76,7 @@ class ForestMap(BaseMapView):
         present_monsters = self.scene["angry-dogs"]
         present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
         if self.tense == Tense.PRESENT and present_collisions :
-            print("Game Over")
+            #print("Game Over")
             game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
             self.game_view.window.show_view(
                             game_over_view) 
@@ -121,7 +121,7 @@ class ForestMap(BaseMapView):
                 self.chase_player(food, PLAYER_SPEED * 2)
 
     def feed_dog(self, dog_food_sprite):
-        print("dogs are feeded")
+        #print("dogs are feeded")
         self.feeded_dogs += 1
         self.scene["dog-food"].remove(dog_food_sprite)
         if (self.feeded_dogs >= 4):

@@ -34,7 +34,7 @@ class WinterMap(BaseMapView):
     map_name = "assets/maps/ski/ski.json"
     self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING)
     self.scene = arcade.Scene.from_tilemap(self.tile_map)
-    print("WinterMap ",self.scene["decoration"])
+    #print("WinterMap ",self.scene["decoration"])
 
     # Setup physics engine
     self.update_walls_in_engine([self.scene["decoration"]])
@@ -59,7 +59,7 @@ class WinterMap(BaseMapView):
     past_collisions = arcade.check_for_collision_with_list(self.player_sprite, past_monsters)
     present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
     if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
-      print("Game Over")
+      #print("Game Over")
       game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
       self.game_view.window.show_view(
                       game_over_view)  # Affiche la vue "Game Over"
@@ -140,7 +140,7 @@ class WinterMap(BaseMapView):
           self.chase_player(monster, CHASING_SPEED)  # Make the dog chase the player
 
   def switch_tense(self):
-    print(self.tense)
+    #print(self.tense)
     if self.tense == Tense.PRESENT:
       self.scene["past-monsters"].visible = True
       self.scene["present-monsters"].visible = False
