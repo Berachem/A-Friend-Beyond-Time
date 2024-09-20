@@ -1,5 +1,6 @@
 import arcade
 import math
+from utils.BaseMapView import BaseMapView
 from utils.tense import Tense
 from constants import *
 
@@ -12,19 +13,19 @@ CHASING_DISTANCE = TILE_SIZE * TILE_SCALING * 5
 PLAYER_SPEED = 5
 CHASING_SPEED = 2
 
-class CityMap:
+class CityMap(BaseMapView):
   def __init__(self, game_view, game_player_sprite):
     self.game_view = game_view
     self.player_sprite = game_player_sprite
     
-    
+    self.finish = False
     self.tile_map = None
     self.scene = None
     self.physics_engine = None
     self.tense = Tense.PRESENT
     self.tool = False
     self.is_car_fixed = False
-    self.car_present = False
+    self.drive_car = False
     self.setup()
 
   def setup(self):
@@ -109,20 +110,20 @@ class CityMap:
     
 
   def on_key_press(self, key, modifiers):
-    if not self.is_car_fixed:
-      self.move_player([self.player_sprite], key)
-      if key == arcade.key.ENTER and self.tense == Tense.PAST:
-        self.near_sprites_in_list(self.scene["tool"], self.collect)
-        if self.tool == True :
+    if self.finish == False :
+      if self.player_sprite.visible == True:
+        self.move_player([self.player_sprite], key)
+        if key == arcade.key.ENTER and self.tense == Tense.PAST :
+          self.near_sprites_in_list(self.scene["tool"], self.collect)
+        if self.drive_car == True and key == arcade.key.ENTER and self.tense == Tense.PRESENT : 
+          self.near_sprites_in_list(self.scene["present_car"], self.drive)
+        if self.tool == True and self.tense == Tense.PAST and key == arcade.key.ENTER:
           self.near_sprites_in_list(self.scene["problem"], self.repar_car)
-      elif key == arcade.key.SPACE:
-        self.switch_tense()
-    else:
-      if self.tense == Tense.PAST:
-        print("past trying to move car", key)
-        self.move_sprites(self.scene["past_car"], key)
-      elif self.tense == Tense.PRESENT:
-        self.move_sprites(self.scene["present_car"], key)
+        if key == arcade.key.SPACE:
+          self.switch_tense()
+      else:
+          if self.tense == Tense.PRESENT:
+            self.move_sprites(self.scene["present_car"], key)
 
   def move_player(self, sprites, key):
     for sprite in sprites:
@@ -136,16 +137,34 @@ class CityMap:
             sprite.change_x = PLAYER_SPEED
     
   def move_sprites(self, sprites, key):
-    for sprite in sprites:
-      if arcade.check_for_collision_with_list(sprite, self.scene["road"]) or arcade.check_for_collision_with_list(sprite, self.scene["terrain"]):
-        if key == arcade.key.UP:
-            sprite.center_y += PLAYER_SPEED * 5
-        elif key == arcade.key.DOWN:
-            sprite.center_y -= PLAYER_SPEED * 5
-        elif key == arcade.key.LEFT:
-            sprite.center_x -= PLAYER_SPEED * 5
-        elif key == arcade.key.RIGHT:
-            sprite.center_x += PLAYER_SPEED * 5
+      # Initialize X and Y movement to 0
+      X = 0
+      Y = 0
+
+      # Check which key is pressed and set movement accordingly
+      if key == arcade.key.UP:
+          Y = PLAYER_SPEED * 5  # Move up
+      elif key == arcade.key.DOWN:
+          Y = -PLAYER_SPEED * 5  # Move down
+      elif key == arcade.key.LEFT:
+          X = -PLAYER_SPEED * 5  # Move left
+      elif key == arcade.key.RIGHT:
+          X = PLAYER_SPEED * 5  # Move right
+
+      # Get the car sprites
+      car_sprite_list = self.scene.get_sprite_list("present_car")
+
+      for sprite in car_sprite_list:
+          # Calculate new position
+          sprite.center_x = sprite.center_x + X
+          sprite.center_y = sprite.center_y + Y
+          if arcade.check_for_collision_with_list(sprite, self.scene["destination"]) :
+            self.finish = True
+         
+             
+             
+
+
 
   def collect(self, collectable):
     self.scene["tool"].remove(collectable)
@@ -154,8 +173,10 @@ class CityMap:
   
   def repar_car(self, collectable):
     self.scene["problem"].remove(collectable)
+    self.drive_car = True
+
+  def drive(self, collectable):
     self.player_sprite.visible = False
-    self.is_car_fixed = True
 
   def switch_tense(self):
     self.scene["problem"].visible = not self.is_car_fixed
@@ -191,7 +212,12 @@ class CityMap:
   def on_update(self, delta_time):
     # Update physics engine (for player and walls interaction)
     self.physics_engine.update()
-    
+    if self.finish ==True:
+            self.game_view.items_collected += 1
+            self.game_view.change_view(
+                        (self.game_view.current_view + 1) % len(self.game_view.views))
+
+
     # Move the car if it has been repaired
     # if self.is_car_fixed :
         # car_sprite = self.scene.get_sprite_list("past_car")  # Assuming the car is in a sprite list
