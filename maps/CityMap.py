@@ -115,7 +115,7 @@ class CityMap(BaseMapView):
         arcade.draw_text(
             "But now, with a second chance, go back to the past, get the item to repair the car and come back to the present,so you can drive it",
             40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-            arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+            arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
         )
     
 
@@ -170,7 +170,7 @@ class CityMap(BaseMapView):
           sprite.center_x = sprite.center_x + X
           sprite.center_y = sprite.center_y + Y
           if arcade.check_for_collision_with_list(sprite, self.scene["immeuble"]):
-              game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+              game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
               self.game_view.window.show_view(
                       game_over_view)  # Affiche la vue "Game Over"
           if arcade.check_for_collision_with_list(sprite, self.scene["destination"]) :
@@ -219,7 +219,6 @@ class CityMap(BaseMapView):
     self.near_sprites_in_list_aux(sprite_list, [self.player_sprite], action, COLLECTING_DISTANCE)
 
   def on_key_release(self, key, modifiers):
-    print("just released ")
     if key == arcade.key.UP or key == arcade.key.DOWN:
       self.player_sprite.change_y = 0
     elif key == arcade.key.LEFT or key == arcade.key.RIGHT:

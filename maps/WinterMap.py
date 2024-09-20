@@ -59,7 +59,7 @@ class WinterMap(BaseMapView):
     present_collisions = arcade.check_for_collision_with_list(self.player_sprite, present_monsters)
     if self.tense == Tense.PRESENT and present_collisions or self.tense == Tense.PAST and past_collisions :
       print("Game Over")
-      game_over_view = GameOverView()  # Crée une instance de la vue "Game Over"
+      game_over_view = GameOverView(self.game_view)  # Crée une instance de la vue "Game Over"
       self.game_view.window.show_view(
                       game_over_view)  # Affiche la vue "Game Over"
 
@@ -220,9 +220,9 @@ class WinterMap(BaseMapView):
             )
 
             arcade.draw_text(
-                " to make things right. Confront your fears, fight alongside your friends, and strive to overcome the past.",
+                " To make things right,go back to the past,Confront your fears, fight alongside your friends, and strive to overcome the past.",
                 40, SCREEN_HEIGHT - 235,  # Adjusted to fit inside the rectangle
-                arcade.color.WHITE, 18, width=SCREEN_WIDTH - 80
+                arcade.color.YELLOW, 18, width=SCREEN_WIDTH - 80
             )
 
   def on_key_press(self, key, modifiers):

@@ -45,11 +45,11 @@ class EndingMap(BaseMapView):
         # Create a horizontal box layout
         h_box = arcade.gui.UIBoxLayout(horizontal=True)
 
-        # Restart Button
-        restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
-        restart_button.on_click = self.on_restart_button_click
-        # Add space to the right of the Restart button
-        h_box.add(restart_button.with_space_around(right=200, bottom=20))
+        # # Restart Button
+        # restart_button = arcade.gui.UIFlatButton(text="Restart", width=200)
+        # restart_button.on_click = self.on_restart_button_click
+        # # Add space to the right of the Restart button
+        # h_box.add(restart_button.with_space_around(right=200, bottom=20))
 
         # Quit Button
         quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
