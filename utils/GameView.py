@@ -59,10 +59,10 @@ class GameView(arcade.View):
         # Create the views (levels)
         self.views = [
             IntroductionMap(self),
-            CityMap(self,self.player_sprite),
+            CityMap(self, self.player_sprite),
             ForestMap(self, self.player_sprite),
-            WinterMap(self,self.player_sprite),
-           
+            WinterMap(self, self.player_sprite),
+
             EndingMap(self)
 
         ]
@@ -150,7 +150,7 @@ class GameView(arcade.View):
                          62, arcade.color.WHITE, 12, bold=True)
         arcade.draw_text("Enter", SCREEN_WIDTH - 190, 62,
                          arcade.color.YELLOW, 14, bold=True)
-        arcade.draw_text(" to get item!", SCREEN_WIDTH -
+        arcade.draw_text(" to interact", SCREEN_WIDTH -
                          135, 62, arcade.color.WHITE, 12, bold=True)
 
         arcade.draw_text("Press ", SCREEN_WIDTH - 250,
