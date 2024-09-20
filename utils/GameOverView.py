@@ -10,6 +10,8 @@ class GameOverView(arcade.View):
         super().__init__()
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
 
+        arcade.set_background_color(arcade.color.WHITE)
+
         # Initialize the UI manager and vertical box layout
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
@@ -26,7 +28,7 @@ class GameOverView(arcade.View):
 
         # Create and add buttons
         self.create_buttons()
-
+        self.game_over_image = arcade.load_texture("assets/images/items/coeurBrise.png")  # Change the path to your image file
     def create_buttons(self):
         """ Create the restart and quit buttons """
         # Restart Button
@@ -62,11 +64,18 @@ class GameOverView(arcade.View):
             "Game Over",
             SCREEN_WIDTH / 2,
             SCREEN_HEIGHT / 2 + 100,  # Shift the text upwards a bit
-            arcade.color.WHITE,
+            arcade.color.BLACK,
             30,
             anchor_x="center",
         )
 
+        arcade.draw_texture_rectangle(
+            SCREEN_WIDTH / 2 + 150,  # Adjust the x position to the right of the text
+            SCREEN_HEIGHT / 2 + 100,  # Align the image vertically with the text
+            100,  # Width of the image
+            100,  # Height of the image
+            self.game_over_image
+        )
         # Draw the UI manager (this draws the buttons)
         self.manager.draw()
 
