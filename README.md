@@ -6,17 +6,55 @@ Dans le cadre de la Game Jam 2024 :
 
 **L'amour, l'amitié et le pardon** sont des thèmes centraux de l'histoire de notre jeu. Le joueur doit naviguer à travers les différentes cartes pour retrouver son ami et réparer leur relation. En manipulant le temps, en collectant des indices et en évitant les dangers, le joueur doit surmonter les obstacles pour atteindre son objectif.
 
-![alt text](/assets/brand/affiche.png)
+## 🔴 Vidéo de démo
+   
+ <a href="https://youtu.be/YIshMpHBr-I"><img  src="/assets/brand/affiche.png"/></a>
 
-## Développeuses et développeurs 👩‍💻👨‍💻
+> watch it on [Youtube](https://youtu.be/YIshMpHBr-I)
+
+
+## 👩‍💻👨‍💻 Développeuses et développeurs 
+
+<table border="0">
+    <tr>
+        <td>
 
 - Berachem MARKRIA
+
 - Abdallah M'CHIRI
 - Manar DEHMANI
 - Yue (Adèle) XIONG
 - Ferhat RAMDANI
+            ____________________________________
+        </td>
+        <td>
+            <img src="./assets/brand/photo_equipe.jpg" width="300" height="200" />
+             ____________________________________
+        </td>
 
-## Scénario 📖
+    </tr>
+</table>
+
+<table>
+  <tr>
+ <td align="center">
+    
+
+
+</td>
+
+   </tr>
+   <tr>
+   <td align="center">
+
+   a.k.a. **BAMFY**
+
+   </td>
+
+
+</table>
+
+## 📖 Scénario 
 
 > Après une violente dispute avec ton meilleur ami, ce dernier disparaît sans laisser de traces. Rongé par le remords, tu décides de le retrouver pour t'excuser et réparer cette relation brisée. En te lançant à sa recherche, tu réalises que la réalité qui t'entoure est fracturée par le temps. Les environnements changent d'aspect en fonction de la temporalité, et seul un voyage à travers le passé et le présent te permettra de le retrouver.
 
@@ -26,7 +64,7 @@ Le passé représente la période avant la dispute, avec des paysages familiers 
 Le présent est marqué par la solitude, les conséquences de la dispute, et des environnements plus hostiles où des ennemis et obstacles ont surgi.
 Ton ami a laissé des indices (clés, lettres, objets) dans les différentes époques pour t'aider à le retrouver. Mais attention, le temps est limité, et tu devras jongler entre les deux temporalités pour surmonter les obstacles.
 
-## Objectif 🎯
+## 🎯 Objectif 
 
 ### Mission principale :
 
@@ -54,20 +92,20 @@ Lire des lettres laissées par ton ami, contenant des indices sur sa localisatio
    Présent : Des créatures hostiles ou des pièges automatiques bloquent le chemin. Les ennemis suivent des chemins spécifiques, et le joueur doit éviter ou contourner ces dangers.
    Passé : Moins d’ennemis actifs, mais des obstacles environnementaux comme des ruines ou des bâtiments effondrés bloquent le chemin.
 
-## Gameplay 🎮
+## 🎮 Gameplay 
 
-### Contrôles ⌨️
+### ⌨️ Contrôles 
 
 - **Déplacement :** Flèches directionnelles (gauche, droite, haut, bas)
 - **Changer de temporalité :** Espace
 
-### Quêtes 🗝
+### 🗝 Quêtes 
 
 - **Réparer la voiture :** Trouver les pièces de la voiture pour la réparer et atteindre l'atelier de peinture où ton ami aime aller
 - **Nourrir les chiens :** Trouver de la nourriture pour les chiens errants et les apaiser
 - **Ramasser les drapeaux :** Collecter les drapeaux pour montrer ton soutien à ton ami
 
-## Réalisation
+## Réalisation 
 
 ### Technologies
 
@@ -78,3 +116,4 @@ Lire des lettres laissées par ton ami, contenant des indices sur sa localisatio
 ### Maquette
 
 ![alt text](/assets/brand/maquette.png)
+
